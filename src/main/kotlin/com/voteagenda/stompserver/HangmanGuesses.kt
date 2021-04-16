@@ -1,6 +1,6 @@
 package com.voteagenda.stompserver
 
-class HangmanGame(val id: Int) {
+class HangmanGame(val id: String) {
 
     var word = "hangman"
     var badGuessCount = 0
@@ -31,4 +31,6 @@ class HangmanGame(val id: Int) {
 
 class HangmanGuess(val userName: String, val content : String)
 
-class HangmanResponse(val userName: String, val userRGB : List<Int>, val content : String, val isCorrect : Boolean, val badGuessCount : Int, val wordProgress : String, val lettersAvailable : Set<String>, val lettersGuessed : Set<String>)
+class HangmanResponse(val userName: String, val userRGB : List<Int>, val content : String, val isCorrect : Boolean, val gameStatus : HangmanGameStatus)
+
+class HangmanGameStatus(val badGuessCount : Int, val wordProgress : String, val lettersAvailable : Set<String>, val lettersGuessed : Set<String>)

@@ -2,12 +2,12 @@ package com.voteagenda.stompserver
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
-class GameService {
+class GuessService(val id : String) {
 
-    var game = HangmanGame(1)
+    var game: HangmanGame = HangmanGame(id)
 
     fun processGuess(sessionId : String, guess: HangmanGuess): HangmanResponse {
-        println("sessionId: $sessionId")
+        println("game id = ${game.id}")
         println(ObjectMapper().writeValueAsString(guess))
         val isCorrect = testGuess(guess)
         game.lettersGuessed.add(guess.content)
@@ -17,7 +17,15 @@ class GameService {
 
         val userRGB = listOf(sessionId.substring(0,2).toInt(16), sessionId.substring(2,4).toInt(16), sessionId.substring(4,6).toInt(16))
 
-        return HangmanResponse(guess.userName, userRGB, guess.content, isCorrect, game.badGuessCount, game.getWordProgress(), game.lettersAvailable, game.lettersGuessed)
+        return HangmanResponse(guess.userName, userRGB, guess.content, isCorrect, getGameStatus())
+    }
+
+    fun getGame(): HangmanResponse {
+        return HangmanResponse("BlahAnon", listOf(220,220,220), "x", false, getGameStatus())
+    }
+
+    fun getGameStatus(): HangmanGameStatus {
+        return HangmanGameStatus(game.badGuessCount, game.getWordProgress(), game.lettersAvailable, game.lettersGuessed)
     }
 
     private fun testGuess(guess: HangmanGuess): Boolean {
