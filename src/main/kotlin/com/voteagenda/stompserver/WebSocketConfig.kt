@@ -38,12 +38,12 @@ class CORSFilter : Filter {
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config : MessageBrokerRegistry) {
-        config.enableSimpleBroker("/channel")
+        config.enableSimpleBroker("/topic")
         config.setApplicationDestinationPrefixes("/app")
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/sockette").setAllowedOriginPatterns("http://localhost:63343")
+        registry.addEndpoint("/hangman-ws").setAllowedOriginPatterns("http://localhost:63343")
     }
 
 }
