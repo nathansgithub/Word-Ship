@@ -3,6 +3,7 @@ package com.voteagenda.stompserver
 class Game(val id: String) {
 
     var word = "hangman"
+    var status = GameStatus.IN_PROGRESS
     var badGuessCount = 0
     var lettersGuessed = mutableSetOf<String>()
     var lettersAvailable: MutableSet<String> = listOfLetters()
@@ -15,8 +16,8 @@ class Game(val id: String) {
         return alphabet
     }
 
-    fun getStatus(): GameStatus {
-        return GameStatus(badGuessCount, getWordProgress(), lettersAvailable, lettersGuessed)
+    fun getLatestUpdate(): LatestUpdate {
+        return LatestUpdate(status, badGuessCount, getWordProgress(), lettersAvailable, lettersGuessed)
     }
 
     fun getWordProgress(): String {
@@ -33,7 +34,12 @@ class Game(val id: String) {
 
 }
 
-class GameStatus(
+enum class GameStatus {
+    IN_PROGRESS, WON, LOST
+}
+
+data class LatestUpdate(
+    val gameStatus: GameStatus,
     val badGuessCount: Int,
     val wordProgress: String,
     val lettersAvailable: Set<String>,
@@ -60,4 +66,4 @@ class User(val userName: String, val sessionId: String? = null) {
     )
 }
 
-class Response(val currentUser: User, val lastGuess: Guess? = null, val gameStatus: GameStatus)
+data class Response(val currentUser: User, val lastGuess: Guess? = null, val latestUpdate: LatestUpdate)

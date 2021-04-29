@@ -21,15 +21,15 @@ class GameController {
         @Header("simpSessionId") sessionId: String,
         guess: Guess
     ): Response {
-        gameService.addGuess(gameService.getGame(id), guess)
         val user = User(guess.user.userName, sessionId)
         guess.user = user
-        return Response(user, guess, gameService.getGame(id).getStatus())
+        val lastGuess = gameService.addGuess(gameService.getGame(id), guess)
+        return Response(user, lastGuess, gameService.getGame(id).getLatestUpdate())
     }
 
     @SubscribeMapping("/game/{id}")
     fun getGame(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String): Response {
-        return Response(User("CoolAnon", sessionId), gameStatus = gameService.getGame(id).getStatus())
+        return Response(User("CoolAnon", sessionId), latestUpdate = gameService.getGame(id).getLatestUpdate())
     }
 
 }
