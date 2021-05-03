@@ -17,7 +17,9 @@ data class Game(val id: String, val word : String) {
     }
 
     fun getLatestUpdate(): LatestUpdate {
-        return LatestUpdate(status, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
+
+        val statusString = status.toString().replace("_", " ").toLowerCase()
+        return LatestUpdate(statusString, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
     }
 
 }
@@ -27,7 +29,7 @@ enum class GameStatus {
 }
 
 data class LatestUpdate(
-    val gameStatus: GameStatus,
+    val gameStatus: String,
     val badGuessCount: Int,
     val wordProgress: String,
     val lettersAvailable: Set<String>,
