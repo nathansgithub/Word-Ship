@@ -1,12 +1,12 @@
 package com.voteagenda.stompserver
 
-class Game(val id: String) {
+data class Game(val id: String, val word : String) {
 
-    var word = "hangman"
     var status = GameStatus.IN_PROGRESS
     var badGuessCount = 0
     var lettersGuessed = mutableSetOf<String>()
     var lettersAvailable: MutableSet<String> = listOfLetters()
+    var wordProgress = "*".repeat(word.length)
 
     private fun listOfLetters(): MutableSet<String> {
         val alphabet = mutableSetOf<String>()
@@ -17,19 +17,7 @@ class Game(val id: String) {
     }
 
     fun getLatestUpdate(): LatestUpdate {
-        return LatestUpdate(status, badGuessCount, getWordProgress(), lettersAvailable, lettersGuessed)
-    }
-
-    fun getWordProgress(): String {
-        var progress = ""
-        for (letter in word) {
-            if (lettersGuessed.contains(letter.toString())) {
-                progress += letter
-            } else {
-                progress += "*"
-            }
-        }
-        return progress
+        return LatestUpdate(status, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
     }
 
 }

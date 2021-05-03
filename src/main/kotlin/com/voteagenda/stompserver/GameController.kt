@@ -24,6 +24,7 @@ class GameController {
         val user = User(guess.user.userName, sessionId)
         guess.user = user
         val lastGuess = gameService.addGuess(gameService.getGame(id), guess)
+        println(gameService.getGame(id).getLatestUpdate())
         return Response(user, lastGuess, gameService.getGame(id).getLatestUpdate())
     }
 
