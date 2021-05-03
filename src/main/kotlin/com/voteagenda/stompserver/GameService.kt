@@ -1,7 +1,6 @@
 package com.voteagenda.stompserver
 
 import org.springframework.stereotype.Service
-import java.io.File
 
 @Service
 class GameService {
@@ -48,8 +47,12 @@ class GameService {
         }
         game.wordProgress = wordProgress
 
-        if (game.badGuessCount >= MAX_BAD_GUESSES) game.status = GameStatus.LOST
-        else if (!game.wordProgress.contains("*")) game.status = GameStatus.WON
+        if (game.badGuessCount >= MAX_BAD_GUESSES) {
+            game.status = GameStatus.LOST
+            game.wordProgress = game.word
+        } else if (!game.wordProgress.contains("*")) {
+            game.status = GameStatus.WON
+        }
 
         return guess
     }
