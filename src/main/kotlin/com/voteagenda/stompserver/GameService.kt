@@ -59,7 +59,7 @@ class GameService {
 
     fun pickWord(): String {
 
-        val content = this::class.java.getResource("/word-lists/word-list.txt").readText().split(System.lineSeparator())
+        val content = this::class.java.getResource("/word-lists/dolch-nouns.txt").readText().split(System.lineSeparator())
         return content.random()
 
     }
