@@ -8,16 +8,20 @@ class GameService {
     val activeGames = mutableMapOf<String, Game>()
     private final val MAX_BAD_GUESSES = 6
 
-    fun getGame(id: String): Game {
-        return activeGames[id] ?: createGame(id)
-    }
-
-    private fun createGame(id: String): Game {
+    fun createGame(id: String): Game {
         val word = pickWord()
         println(word)
         val game = Game(id, word)
         activeGames[id] = game
         return game
+    }
+
+    fun getGame(id: String): Game {
+        return activeGames[id] ?: createGame(id)
+    }
+
+    fun deleteGame(id : String) {
+        activeGames.remove(id)
     }
 
     fun addGuess(game: Game, guess: Guess): Guess? {
@@ -50,8 +54,10 @@ class GameService {
         if (game.badGuessCount >= MAX_BAD_GUESSES) {
             game.status = GameStatus.LOST
             game.wordProgress = game.word
+            guess.isGameEndingGuess = true
         } else if (!game.wordProgress.contains("*")) {
             game.status = GameStatus.WON
+            guess.isGameEndingGuess = true
         }
 
         return guess

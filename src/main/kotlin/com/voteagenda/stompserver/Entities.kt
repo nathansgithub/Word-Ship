@@ -1,7 +1,10 @@
 package com.voteagenda.stompserver
 
-data class Game(val id: String, val word : String) {
+import kotlin.reflect.typeOf
 
+data class Game(val id: String, val word: String) {
+
+    val userList = mutableSetOf<User>()
     var status = GameStatus.IN_PROGRESS
     var badGuessCount = 0
     var lettersGuessed = mutableSetOf<String>()
@@ -36,7 +39,7 @@ data class LatestUpdate(
     val lettersGuessed: Set<String>
 )
 
-class Guess(var user: User, letter: String) {
+class Guess(var user: User, letter: String, var isGameEndingGuess: Boolean = false) {
 
     val letter = letter.toLowerCase()
     var isCorrect = false
@@ -54,6 +57,18 @@ class User(val userName: String, val sessionId: String? = null) {
         sessionId.substring(2, 4).toInt(16),
         sessionId.substring(4, 6).toInt(16)
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (other is User) {
+            return other.sessionId.equals(this.sessionId)
+        }
+        return super.equals(other)
+    }
 }
 
-data class Response(val currentUser: User, val lastGuess: Guess? = null, val latestUpdate: LatestUpdate)
+data class Response(
+    val userList: Set<User>,
+    val currentUser: User? = null,
+    val lastGuess: Guess? = null,
+    val latestUpdate: LatestUpdate
+)
