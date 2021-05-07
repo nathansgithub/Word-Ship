@@ -1,7 +1,5 @@
 package com.voteagenda.stompserver
 
-import kotlin.reflect.typeOf
-
 data class Game(val id: String, val word: String) {
 
     val userList = mutableSetOf<User>()

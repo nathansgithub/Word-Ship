@@ -6,13 +6,11 @@ import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
-import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +34,6 @@ class GameController {
         val game = gameService.getGame(id)
         val lastGuess = gameService.addGuess(game, guess)
         if (lastGuess?.isGameEndingGuess == true) {
-            println("We WON/.. LOST?")
             Executors.newSingleThreadScheduledExecutor().schedule({
                 gameService.deleteGame(id)
                 this.broadcastGameUpdate(id)

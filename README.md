@@ -1,1 +1,2 @@
-# hangman-backend
+# Hangman
+Multiplayer hangman word game

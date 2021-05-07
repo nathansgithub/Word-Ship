@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap');
+
+:root {
+    --red: rgb(255, 0, 0);
+    --green: rgb(0, 180, 0);
+    --black: rgb(60, 60, 60);
+    --white: rgb(220, 220, 220);
+    --white-fade: rgba(220, 220, 220, 0.65);
+    --white-fade-heavy: rgba(220, 220, 220, 0);
+    --primary-color: rgb(14, 123, 92);
+    --primary-color-fade: rgba(14, 123, 92, 0.3);
+    --primary-color-light: rgb(44, 153, 122);
+    --secondary-color: rgb(198, 156, 53);
+    --secondary-color-dark: rgb(168, 126, 23);
+}
+
+::selection {
+    background-color: var(--black);
+    color: var(--secondary-color);
+}
+
+@keyframes wave {
+    100% {
+        background-position: -50px 0, -50px 0, 0 0, 0 0;
+    }
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    max-width: 750px;
+    margin: auto auto;
+    line-height: 1.6;
+    font-size: 16px;
+    font-family: 'sans-serif';
+    font-weight: 700;
+    animation: 6s wave infinite linear;
+    color: rgb(220, 220, 220);
+    background-color: var(--primary-color-light);
+    background-image: linear-gradient(135deg, var(--primary-color-fade) 25%, transparent 25%),
+    linear-gradient(225deg, var(--primary-color-fade) 25%, transparent 25%),
+    linear-gradient(315deg, var(--primary-color-fade) 25%, transparent 25%),
+    linear-gradient(45deg, var(--primary-color-fade) 25%, transparent 25%);
+    background-attachment: fixed;
+    background-position: -250px -400px, -250px -400px, 0 -400px, 0 -400px;
+    background-size: 100px 100px;
+    background-repeat: repeat;
+}
+
+@media screen and (min-width: 480px) and (min-height: 480px) {
+    #game-window {
+        font-size: 18px;
+    }
+}
+
+#game-window {
+    display: flex;
+    flex-flow: column;
+    height: 100vh;
+}
+
+#game-window > header {
+    margin: 0 1em;
+    flex: 0 1 auto;
+}
+
+article {
+    display: flex;
+    flex-direction: column;
+    margin: 1em;
+    flex: 1 1 auto;
+    font-weight: 400;
+}
+
+#game-content {
+    flex: 1 1 8em;
+    align-content: inherit;
+}
+
+#cmd {
+    flex: 0.4 1 6em;
+    padding: 8px 16px;
+    overflow-y: scroll;
+    border-radius: 0 0 10px 10px;
+}
+
+#game-info {
+    flex: 1 1 auto;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+#hanged-man {
+    flex: 1 1 140px;
+    padding: 1em;
+    background-image: url('../images/hangman_crude.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+#word-progress {
+    flex: 1 1 auto;
+    font-family: 'Josefin Sans', 'sans-serif';
+    font-size: 2.6em;
+    font-weight: bold;
+    text-align: center;
+}
+
+#guess-info {
+    flex: 0.6 1 auto;
+}
+
+#word-progress.bad-job {
+    color: var(--red);
+}
+
+.halo {
+    border-radius: 10px;
+    background-color: var(--white-fade-heavy);
+    color: rgb(20, 20, 20);
+    transition: background-color 3s ease;
+}
+
+.halo.transitioned {
+    background-color: var(--white-fade);
+}
+
+
+article a {
+    color: var(--primary-color);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+article a:hover, article a:focus, article a:active {
+    color: var(--white);
+    background-color: var(--primary-color-fade);
+}
+
+a {
+    transition: background-color 0.5s, color 0.5s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Josefin Sans', 'sans-serif';
+}
+
+h1.outer-text {
+    border-bottom: var(--white) 3px solid;
+    border-radius: 10px;
+}
+
+.outer-text {
+    text-shadow: 2px 2px 1px var(--black);
+}
+
+ul {
+    padding-left: 22px;
+    list-style-type: none;
+}
+
+ul li::before {
+    content: "- ";
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+input[type=radio], input[type=checkbox] {
+    margin-left: 15px;
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap-reverse;
+}
+
+.flex-stretch {
+    flex: 1;
+}
+
+.flex-column-reverse {
+    display: flex;
+    flex-direction: column;
+}
+
+#cmd-input-div {
+    scroll-snap-align: end;
+}
+
+#cmd, #cmd label, #cmd input {
+    background-color: var(--black);
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: monospace;
+    font-size: 1em;
+}
+
+#cmd label {
+    color: var(--secondary-color);
+}
+
+#chat-history div {
+    scroll-padding-bottom: 0;
+}
+
+.user-tag {
+    border: var(--white) 2px solid;
+    margin-right: 6px;
+    padding: 2px;
+}
+
+.not-ready, .not-ready label, .not-ready input, .not-ready textarea {
+    cursor: wait;
+}
