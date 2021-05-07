@@ -5,28 +5,31 @@ import org.springframework.stereotype.Service
 @Service
 class GameService {
 
-    val activeGames = mutableMapOf<String, Game>()
+    val gamesByGameId = mutableMapOf<String, Game>()
+    val gamesBySessionId = mutableMapOf<String, Game>()
     private final val MAX_BAD_GUESSES = 6
 
     fun createGame(id: String): Game {
         val word = pickWord()
         println(word)
         val game = Game(id, word)
-        activeGames[id] = game
+        gamesByGameId[id] = game
         return game
     }
 
     fun getGame(id: String): Game {
-        return activeGames[id] ?: createGame(id)
+        return gamesByGameId[id] ?: createGame(id)
     }
 
-    fun deleteGame(id : String) {
-        activeGames.remove(id)
+    fun deleteGame(id: String) {
+        gamesByGameId.remove(id)
     }
 
     fun addGuess(game: Game, guess: Guess): Guess? {
 
         if (game.status !== GameStatus.IN_PROGRESS) return null
+
+        game.userList.add(guess.user)
 
         var isCorrect = guess.isValid()
         if (isCorrect) {
@@ -63,9 +66,19 @@ class GameService {
         return guess
     }
 
+    fun disconnectUser(sessionId: String) {
+        val game = gamesBySessionId.remove(sessionId) ?: return
+        val user = game.userList.find { user -> user.sessionId == sessionId }
+        game.userList.remove(user)
+
+        // Delete game after users flee
+        if (game.userList.isEmpty()) gamesByGameId.remove(game.id)
+    }
+
     fun pickWord(): String {
 
-        val content = this::class.java.getResource("/word-lists/dolch-nouns.txt").readText().split(System.lineSeparator())
+        val content =
+            this::class.java.getResource("/word-lists/dolch-nouns.txt").readText().split(System.lineSeparator())
         return content.random()
 
     }

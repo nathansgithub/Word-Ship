@@ -32,10 +32,8 @@ class GameController {
         @Header("simpSessionId") sessionId: String,
         guess: Guess
     ): Response {
-        val user = User(guess.user.userName, sessionId)
+        guess.user.sessionId = sessionId
         val game = gameService.getGame(id)
-        game.userList.add(user)
-        guess.user = user
         val lastGuess = gameService.addGuess(game, guess)
         if (lastGuess?.isGameEndingGuess == true) {
             println("We WON/.. LOST?")
@@ -44,13 +42,18 @@ class GameController {
                 this.broadcastGameUpdate(id)
             }, 5, TimeUnit.SECONDS)
         }
-        return Response(game.userList, user, lastGuess, game.getLatestUpdate())
+        return Response(game.userList, guess.user, lastGuess, game.getLatestUpdate())
     }
 
     @SubscribeMapping("/game/{id}")
-    fun getGame(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String? = null): Response {
+    fun getGame(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String): Response {
         val game = gameService.getGame(id)
-        return Response(userList = game.userList, latestUpdate = game.getLatestUpdate())
+        gameService.gamesBySessionId.put(sessionId, game)
+        return Response(
+            currentUser = User(sessionId = sessionId),
+            userList = game.userList,
+            latestUpdate = game.getLatestUpdate()
+        )
     }
 
     fun broadcastGameUpdate(id: String) {
@@ -63,11 +66,7 @@ class GameController {
 
     @EventListener
     fun disconnectUser(event: SessionDisconnectEvent) {
-        println("disocnnecting ${event}")
-        for (map in gameService.activeGames) {
-            val game = map.value
-            game.userList.remove(User(event.sessionId))
-        }
+        gameService.disconnectUser(event.sessionId)
     }
 
 }

@@ -51,11 +51,11 @@ class Guess(var user: User, letter: String, var isGameEndingGuess: Boolean = fal
     }
 }
 
-class User(val userName: String, val sessionId: String? = null) {
+data class User(val userName: String? = null, var sessionId: String? = null) {
     val userRGB = if (sessionId == null) null else listOf(
-        sessionId.substring(0, 2).toInt(16),
-        sessionId.substring(2, 4).toInt(16),
-        sessionId.substring(4, 6).toInt(16)
+        sessionId!!.substring(0, 2).toInt(16),
+        sessionId!!.substring(2, 4).toInt(16),
+        sessionId!!.substring(4, 6).toInt(16)
     )
 
     override fun equals(other: Any?): Boolean {
