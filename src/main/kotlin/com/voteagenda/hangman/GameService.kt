@@ -1,4 +1,4 @@
-package com.voteagenda.stompserver
+package com.voteagenda.hangman
 
 import org.springframework.stereotype.Service
 
@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service
 class GameService {
 
     val gamesByGameId = mutableMapOf<String, Game>()
-    val gamesBySessionId = mutableMapOf<String, Game>()
-    private final val MAX_BAD_GUESSES = 6
+    val gamesByUserId = mutableMapOf<String, Game>()
+    private val MAX_BAD_GUESSES = 6
 
     fun createGame(id: String): Game {
         val word = pickWord()
@@ -67,7 +67,7 @@ class GameService {
     }
 
     fun disconnectUser(sessionId: String) {
-        val game = gamesBySessionId.remove(sessionId) ?: return
+        val game = gamesByUserId.remove(sessionId) ?: return
         val user = game.userList.find { user -> user.sessionId == sessionId }
         game.userList.remove(user)
 

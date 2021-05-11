@@ -110,8 +110,9 @@ const cmd = {
     printHelp: function () {
         this.print(`Valid commands are: ${this.commands.join(', ')}`)
     },
-    joinGame: function (id = 'woobly' + Math.floor(Math.random() * 100000)) {
-        currentGame = new Game(id)
+    joinGame: function (id) {
+        if (!id) id = 'secret%20club'
+        window.location.replace(window.location.origin + '?game=' + id)
     },
     quit: function () {
         this.print('You shrugged and gave up.')
@@ -214,8 +215,11 @@ class Game {
 
 // --------------
 
-let currentUser = new User({userName: 'AnonyMan'})
-let currentGame = new Game('flooey')
+const urlQuery = new URLSearchParams(window.location.search)
+if (!urlQuery.get('game')) cmd.joinGame()
+
+let currentUser = new User({userName: 'Anonymous'})
+let currentGame = new Game(urlQuery.get('game'))
 
 cmd.element.addEventListener('submit', function (event) {
     event.preventDefault()
@@ -247,6 +251,10 @@ cmd.element.addEventListener('submit', function (event) {
         cmd.clearInput()
     }
 }, true)
+
+document.getElementById('change-room').addEventListener('click', function (event) {
+    cmd.joinGame(prompt('Enter a new game id or an existing game id to join a game in progress.'))
+})
 
 // cmd.print('Type \'new\' to start a new game.', '#77f')
 // startGame('one')

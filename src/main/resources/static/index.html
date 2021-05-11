@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Hangman.</title>
-    <meta name="description" content="Guess the secret word."/>
-    <link rel="stylesheet" href="style/main.css">
+    <meta content="Guess the secret word." name="description"/>
+    <link href="style/main.css" rel="stylesheet">
 </head>
 <body>
 
@@ -13,11 +13,12 @@
 
     <header>
         <h1 class="outer-text">Hangman.</h1>
-        <p id="game-room-name" class="outer-text">Guess the secret word.</p>
+        <span class="outer-text" id="game-room-name">Guess the secret word. </span>
+        <button id="change-room">Change Room</button>
     </header>
 
     <article class="halo">
-        <div id="game-content" class="flex-container">
+        <div class="flex-container" id="game-content">
             <div id="game-info">
                 <div id="word-progress"></div>
                 <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span><br/>
@@ -26,12 +27,12 @@
             <div id="hanged-man"></div>
         </div>
 
-        <div id="cmd" class="not-ready">
-            <div id="chat-history" class="flex-column-reverse">
+        <div class="not-ready" id="cmd">
+            <div class="flex-column-reverse" id="chat-history">
                 <div id="cmd-input-div">
-                    <form id="cmd-form" autocomplete="off" spellcheck="false">
-                        <label id="cmd-prompt" for="cmd-input"></label>
-                        <input id="cmd-input" class="flex-stretch" type="text"/>
+                    <form autocomplete="off" id="cmd-form" spellcheck="false">
+                        <label for="cmd-input" id="cmd-prompt"></label>
+                        <input class="flex-stretch" id="cmd-input" type="text"/>
                     </form>
                 </div>
             </div>
@@ -40,10 +41,10 @@
     </article>
 </div>
 
-<script src="scripts/onload.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.min.js" defer
-        crossorigin="anonymous"></script>
+<script defer src="scripts/onload.js"></script>
+<script crossorigin="anonymous" defer
+        src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.min.js"></script>
 <!--<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" defer></script>-->
-<script src="scripts/game.js" defer></script>
+<script defer src="scripts/game.js"></script>
 </body>
 </html>

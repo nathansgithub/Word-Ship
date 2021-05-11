@@ -1,4 +1,6 @@
-package com.voteagenda.stompserver
+package com.voteagenda.hangman
+
+import java.util.*
 
 data class Game(val id: String, val word: String) {
 
@@ -19,7 +21,7 @@ data class Game(val id: String, val word: String) {
 
     fun getLatestUpdate(): LatestUpdate {
 
-        val statusString = status.toString().replace("_", " ").toLowerCase()
+        val statusString = status.toString().replace("_", " ").lowercase(Locale.getDefault())
         return LatestUpdate(statusString, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
     }
 
@@ -39,7 +41,7 @@ data class LatestUpdate(
 
 class Guess(var user: User, letter: String, var isGameEndingGuess: Boolean = false) {
 
-    val letter = letter.toLowerCase()
+    val letter = letter.lowercase(Locale.getDefault())
     var isCorrect = false
 
     fun isValid(): Boolean {
