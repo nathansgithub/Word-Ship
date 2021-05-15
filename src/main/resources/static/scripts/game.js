@@ -3,7 +3,7 @@
 const connectionHandler = {
 
     client: new StompJs.Client({
-        brokerURL: 'ws://localhost:8080/hangman-ws',
+        brokerURL: (location.hostname === 'localhost' ? 'ws://' : 'wss://') + location.host + location.pathname.replace(/\/$/, '') + '/ws',
         // connectHeaders: {
         //   login: 'user',
         //   passcode: 'password',
@@ -112,7 +112,7 @@ const cmd = {
     },
     joinGame: function (id) {
         if (!id) id = 'secret%20club'
-        window.location.replace(window.location.origin + '?game=' + id)
+        location.replace(location.href.replace(location.search, '').replace(/\/$/, '') + '?game=' + id)
     },
     quit: function () {
         this.print('You shrugged and gave up.')
@@ -253,8 +253,6 @@ cmd.element.addEventListener('submit', function (event) {
 }, true)
 
 document.getElementById('change-room').addEventListener('click', function (event) {
-    cmd.joinGame(prompt('Enter a new game id or an existing game id to join a game in progress.'))
+    const gameId = prompt('Enter a new game id or an existing game id to join a game in progress.')
+    if (gameId) cmd.joinGame()
 })
-
-// cmd.print('Type \'new\' to start a new game.', '#77f')
-// startGame('one')

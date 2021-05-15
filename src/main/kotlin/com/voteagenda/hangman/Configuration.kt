@@ -15,7 +15,6 @@ class CORSFilter : Filter {
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(req: ServletRequest?, res: ServletResponse, chain: FilterChain) {
         val response = res as HttpServletResponse
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080")
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE")
         response.setHeader("Access-Control-Max-Age", "3600")
         response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
@@ -37,7 +36,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/hangman-ws").setAllowedOriginPatterns("http://localhost:8080")
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:8080", "https://voteagenda.com")
     }
 
 }
