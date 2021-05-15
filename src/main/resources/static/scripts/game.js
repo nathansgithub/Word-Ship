@@ -112,7 +112,7 @@ const cmd = {
     },
     joinGame: function (id) {
         if (!id) id = 'secret%20club'
-        location.replace(location.href.replace(location.search, '').replace(/\/$/, '') + '?game=' + id)
+        location.replace(location.href.replace(location.search, '').replace(/index.html$/, '').replace(/\/$/, '') + '?game=' + id)
     },
     quit: function () {
         this.print('You shrugged and gave up.')
