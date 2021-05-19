@@ -37,8 +37,8 @@ const connectionHandler = {
                     const lastGuess = messageBody.lastGuess
                     const latestUpdate = messageBody.latestUpdate
 
-                    if (lastGuess) {
-                        switch (lastGuess.isCorrect) {
+                    if (lastGuess && lastGuess.valid) {
+                        switch (lastGuess.correct) {
                             case true:
                                 cmd.print(`correctly guessed \"${lastGuess.letter}\"`,
                                     cmd.colors.get('green'), lastGuess.user)
@@ -218,7 +218,7 @@ class Game {
 const urlQuery = new URLSearchParams(window.location.search)
 if (!urlQuery.get('game')) cmd.joinGame()
 
-let currentUser = new User({userName: 'Anonymous'})
+let currentUser = new User({userName: 'Anonymous-' + Math.floor(Math.random() * 100000)})
 let currentGame = new Game(urlQuery.get('game'))
 
 cmd.element.addEventListener('submit', function (event) {
