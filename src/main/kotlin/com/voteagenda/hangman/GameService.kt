@@ -49,7 +49,7 @@ class GameService {
             if (game.lettersGuessed.contains(letter.toString())) {
                 wordProgress += letter
             } else {
-                wordProgress += "*"
+                wordProgress += "_"
             }
         }
         game.wordProgress = wordProgress
@@ -58,7 +58,7 @@ class GameService {
             game.status = GameStatus.LOST
             game.wordProgress = game.word
             guess.isGameEndingGuess = true
-        } else if (!game.wordProgress.contains("*")) {
+        } else if (!game.wordProgress.contains("_")) {
             game.status = GameStatus.WON
             guess.isGameEndingGuess = true
         }
@@ -71,15 +71,13 @@ class GameService {
         val user = game.userList.find { user -> user.sessionId == sessionId }
         game.userList.remove(user)
 
-        // Delete game after users flee
+        // Delete game after all players flee
         if (game.userList.isEmpty()) gamesByGameId.remove(game.id)
     }
 
     fun pickWord(): String {
-
         val content =
             this::class.java.getResource("/word-lists/dolch-nouns.txt").readText().split(System.lineSeparator())
         return content.random()
-
     }
 }

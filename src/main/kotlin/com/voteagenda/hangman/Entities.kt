@@ -9,7 +9,7 @@ data class Game(val id: String, val word: String) {
     var badGuessCount = 0
     var lettersGuessed = mutableSetOf<String>()
     var lettersAvailable: MutableSet<String> = listOfLetters()
-    var wordProgress = "*".repeat(word.length)
+    var wordProgress = "_".repeat(word.length)
 
     private fun listOfLetters(): MutableSet<String> {
         val alphabet = mutableSetOf<String>()
