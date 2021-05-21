@@ -29,7 +29,7 @@ const connectionHandler = {
                     const messageBody = JSON.parse(message.body)
                     console.info('receiving:', messageBody)
 
-                    if (messageBody.currentUser && (!currentUser || !currentUser.userRGB)) {
+                    if (messageBody.currentUser && (!currentUser || !currentUser.colorHSL)) {
                         if (currentUser) messageBody.currentUser.userName = currentUser.userName
                         currentUser = new User(messageBody.currentUser)
                     }
@@ -102,11 +102,10 @@ const cmd = {
         messageDiv.style.color = color
         if (Object.keys(user).length > 0) {
             const userTag = document.createElement('span')
-            const userRGB = user.userRGB
-            userTag.style.backgroundColor = `rgb(${userRGB[0]},${userRGB[1]},${userRGB[2]})`
+            const colorHSL = user.colorHSL
+            userTag.style.color = `hsl(${colorHSL[0]}, ${colorHSL[1]}%, ${colorHSL[2]}%)`
             userTag.innerText = user.userName
             userTag.classList.add('user-tag')
-            userTag.style.color = currentUser.getContrastColor(userRGB)
             messageDiv.appendChild(userTag)
         }
         messageDiv.appendChild(document.createTextNode(message))
@@ -201,7 +200,7 @@ const cmd = {
 class User {
 
     userName
-    userRGB
+    colorHSL
     sessionId
 
     constructor(object) {
@@ -210,16 +209,6 @@ class User {
                 this[property] = object[property]
             }
         }
-        if (this.userRGB != null) {
-            this.contrastColor = this.getContrastColor(this.userRGB)
-        }
-    }
-
-    getContrastColor(colorRGB) {
-        const sum = Math.round(
-            ((parseInt(colorRGB[0]) * 299) + (parseInt(colorRGB[1]) * 587) +
-                (parseInt(colorRGB[2]) * 114)) / 1000)
-        return (sum > 128) ? '#000' : '#fff'
     }
 
 }
@@ -246,7 +235,7 @@ class Game {
         connectionHandler.deactivate()
         this.wordProgressElement.classList.remove('bad-job')
         connectionHandler.activate()
-        cmd.print(`You are playing a game in room \'${this.id}\'`, '#77f')
+        cmd.print(`You are playing a game in room \'${this.id}\'`, '#99f')
     }
 
     update(latestUpdate) {
@@ -297,12 +286,10 @@ let currentGame = new Game(gameId)
 
 cmd.element.addEventListener('submit', cmd.enterText, true)
 
-document.getElementById('change-room').addEventListener('click', function (event) {
-    // const gameId = cmd.promptUser('Enter a new game id or an existing game id to join a game in progress.')
-    // if (gameId) cmd.joinGame(gameId)
+document.getElementById('change-room').addEventListener('click', function () {
     cmd.promptAsync('Enter a new game id or an existing game id to join a game in progress:', cmd.joinGame)
 })
 
-document.getElementById('change-name').addEventListener('click', function (event) {
+document.getElementById('change-name').addEventListener('click', function () {
     cmd.promptAsync('Enter a new name:', cmd.setUserName)
 })

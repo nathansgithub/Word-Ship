@@ -52,10 +52,10 @@ class Guess(var user: User, letter: String, var isGameEndingGuess: Boolean = fal
 }
 
 data class User(val userName: String? = null, var sessionId: String? = null) {
-    val userRGB = if (sessionId == null) null else listOf(
-        sessionId!!.substring(0, 2).toInt(16),
-        sessionId!!.substring(2, 4).toInt(16),
-        sessionId!!.substring(4, 6).toInt(16)
+    val colorHSL = if (sessionId == null) null else listOf(
+        sessionId!!.substring(0, 2).toInt(16) * 359 / 255,
+        sessionId!!.substring(2, 4).toInt(16) * 70 / 255 + 30,
+        sessionId!!.substring(4, 6).toInt(16) * 40 / 255 + 60
     )
 
     override fun equals(other: Any?): Boolean {

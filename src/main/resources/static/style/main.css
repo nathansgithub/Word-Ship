@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap');
 
 :root {
-    --red: rgb(255, 0, 0);
-    --green: rgb(0, 180, 0);
-    --black: rgb(60, 60, 60);
+    --red: #f55;
+    --green: #3c7;
+    --black: #333;
     --white: rgb(220, 220, 220);
     --white-fade: rgba(220, 220, 220, 0.65);
     --white-fade-heavy: rgba(220, 220, 220, 0);
     --primary-color: rgb(14, 123, 92);
     --primary-color-fade: rgba(14, 123, 92, 0.3);
     --primary-color-light: rgb(44, 153, 122);
-    --secondary-color: rgb(198, 156, 53);
+    --secondary-color: rgb(240, 180, 70); /* rgb(198, 156, 53);*/
     --secondary-color-dark: rgb(168, 126, 23);
 }
 
@@ -210,9 +210,10 @@ input[type=radio], input[type=checkbox] {
 }
 
 .user-tag {
-    border: var(--white) 2px solid;
     margin-right: 6px;
     padding: 2px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .not-ready, .not-ready label, .not-ready input, .not-ready textarea {
