@@ -22,7 +22,7 @@ const connectionHandler = {
             console.log('Broker reported error: ' + frame.headers['message'])
             console.log('Additional details: ' + frame.body)
         },
-        onConnect: function (frame) {
+        onConnect: function () {
             this.subscribe(`/topic/game/${currentGame.id}`,
                 function (message) {
 
@@ -46,6 +46,7 @@ const connectionHandler = {
                             case false:
                                 cmd.print(`incorrectly guessed \"${lastGuess.letter}\"`,
                                     cmd.colors.get('red'), lastGuess.user)
+                                setTimeout(currentGame.fireCannon, Math.floor(Math.random() * 1000))
                                 break
                         }
                     }
@@ -72,9 +73,10 @@ const connectionHandler = {
 
 const cmd = {
 
-    commands: ['help', 'clear', 'new', 'join', 'quit'],
+    commands: ['help', 'clear', 'quit'], // 'join'
     element: document.getElementById('cmd'),
     promptElement: document.getElementById('cmd-prompt'),
+    cmdInputElement: document.getElementById('cmd-input'),
     state: 'terminal',
     userInput: null,
     colors: new Map().set('green', 'var(--green)').set('red', 'var(--red)'),
@@ -85,7 +87,6 @@ const cmd = {
 
         switch (state) {
             case 'guessing':
-                this.clearChat()
                 this.promptElement.innerText = 'Guess a letter: '
                 break
             case 'terminal':
@@ -109,12 +110,12 @@ const cmd = {
             messageDiv.appendChild(userTag)
         }
         messageDiv.appendChild(document.createTextNode(message))
-        const cmdInputDiv = document.getElementById('cmd-input-div')
-        chats.insertBefore(messageDiv, cmdInputDiv)
+        const cmdInputDivElement = document.getElementById('cmd-input-div')
+        chats.insertBefore(messageDiv, cmdInputDivElement)
         if (chats.childNodes.length > 100) {
             chats.childNodes[0].remove()
         }
-        cmdInputDiv.scrollIntoView()
+        cmdInputDivElement.scrollIntoView()
     },
     clearChat: function () {
         const chatLines = document.getElementsByClassName('chat-history-line')
@@ -133,12 +134,15 @@ const cmd = {
         if (currentUser) currentUser.userName = userName
         else currentUser = new User({userName: userName})
         document.getElementById(
-            'game-room-name').innerText = `Playing in room: ${gameId} as ${currentUser.userName}`
+            'game-room-name').innerText = `Playing as ${currentUser.userName} in room \"${gameId}\"`
     },
     promptAsync: function (prompt, callback) {
         const previousState = this.state
         this.updateState('prompting')
         this.promptElement.innerText = prompt
+        console.log(this.cmdInputElement)
+        this.cmdInputElement.scrollIntoView()
+        this.cmdInputElement.focus()
 
         function loop() {
             if (cmd.userInput) {
@@ -173,9 +177,6 @@ const cmd = {
             switch (command) {
                 case 'clear':
                     cmd.clearChat()
-                    break
-                case 'new':
-                    cmd.joinGame()
                     break
                 case 'quit':
                     cmd.quit()
@@ -227,7 +228,7 @@ class Game {
         this.startGame(id)
     }
 
-    async startGame() {
+    startGame() {
         cmd.updateState('guessing')
         if (localStorage.getItem('userName')) cmd.setUserName(localStorage.getItem('userName'))
         else cmd.promptAsync('Please choose a username:', cmd.setUserName)
@@ -235,7 +236,40 @@ class Game {
         connectionHandler.deactivate()
         this.wordProgressElement.classList.remove('bad-job')
         connectionHandler.activate()
-        cmd.print(`You are playing a game in room \'${this.id}\'`, '#99f')
+        cmd.print(`You are playing a game in room \"${this.id}\"`, '#99f')
+        cmd.cmdInputElement.focus()
+    }
+
+    fireCannon() {
+        const hangedManDiv = document.getElementById('hanged-man')
+        const shipDiv = document.getElementById('ship')
+        const cannonBall = document.createElement('div')
+        cannonBall.classList.add('cannon-ball', 'pixel-art')
+        cannonBall.style.left = (5 + Math.floor(Math.random() * 90)) + "%"
+        hangedManDiv.insertBefore(cannonBall, shipDiv)
+
+        setTimeout(function () {
+            cannonBall.parentNode.removeChild(cannonBall)
+            const explosion = document.createElement('div')
+            explosion.classList.add('explosion', 'pixel-art')
+            hangedManDiv.insertBefore(explosion, shipDiv)
+            shipDiv.classList.add('hit')
+            setTimeout(function () {
+                explosion.parentNode.removeChild(explosion)
+                shipDiv.classList.remove('hit')
+            }, 600)
+        }, 2000)
+    }
+
+    loseGameAnimation() {
+        let timer = setInterval(currentGame.fireCannon, 2000)
+        setTimeout(function () {
+            clearInterval(timer)
+            timer = setInterval(currentGame.fireCannon, 250)
+            setTimeout(function () {
+                clearInterval(timer)
+            }, 5000)
+        }, 5000)
     }
 
     update(latestUpdate) {
@@ -265,6 +299,7 @@ class Game {
         } else if (latestUpdate.gameStatus === 'lost') {
             this.wordProgressElement.classList.add('bad-job')
             cmd.print('WE LOST... Starting a new game soon.')
+            currentGame.loseGameAnimation()
         }
 
     }
@@ -293,3 +328,5 @@ document.getElementById('change-room').addEventListener('click', function () {
 document.getElementById('change-name').addEventListener('click', function () {
     cmd.promptAsync('Enter a new name:', cmd.setUserName)
 })
+
+document.getElementById('fire-cannon').addEventListener('click', currentGame.loseGameAnimation)
