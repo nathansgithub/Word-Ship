@@ -229,6 +229,26 @@ article {
     }
 }
 
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0px);
+    }
+    50% {
+        transform: translate(0, 16px);
+    }
+}
+
+@keyframes pass-the-ship {
+    80% {
+        left: 0;
+        background-position-x: 0;
+    }
+    100% {
+        left: 0;
+        background-position-x: -64px;
+    }
+}
+
 .pixel-art {
     position: absolute;
     transform-origin: top left;
@@ -322,6 +342,16 @@ article {
     animation-duration: 0.6s;
     animation-timing-function: steps(1, end);
     transform-origin: top left;
+}
+
+.barrel {
+    z-index: -100;
+    top: calc(60% - 16px);
+    left: 100%;
+    right: 0;
+    height: 60px;
+    background-image: url('../images/barrel.png');
+    animation: float 2s ease-in-out infinite, pass-the-ship 10s linear infinite;
 }
 
 #word-progress {
