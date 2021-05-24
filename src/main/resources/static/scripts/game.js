@@ -241,7 +241,7 @@ class Game {
     }
 
     fireCannon() {
-        const hangedManDiv = document.getElementById('hanged-man')
+        const hangedManDiv = document.getElementById('ship-display')
         const shipDiv = document.getElementById('ship')
         const cannonBall = document.createElement('div')
         cannonBall.classList.add('cannon-ball', 'pixel-art')
