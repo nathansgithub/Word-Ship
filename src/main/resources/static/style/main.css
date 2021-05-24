@@ -209,11 +209,13 @@ article {
 
 @keyframes toss-x {
     from, to {
-        scale: 0;
+        width: 0;
+        height: 0;
     }
     100% {
         left: calc(40% - 32px);
-        scale: 1;
+        width: 32px;
+        height: 32px;
         visibility: hidden;
     }
 }
@@ -305,6 +307,7 @@ article {
     width: 32px;
     height: 32px;
     background-image: url('../images/cannon-ball.png');
+    background-size: contain;
     animation: toss-x 2s linear, toss-y 2.5s cubic-bezier(0.310, 0.440, 0.445, 1.650);
 }
 
