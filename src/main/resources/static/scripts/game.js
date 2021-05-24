@@ -261,6 +261,14 @@ class Game {
         }, 2000)
     }
 
+    winGameAnimation() {
+        const landDiv = document.getElementById('land')
+        setTimeout(function () {
+            landDiv.style.left = "calc(40% + 80px)"
+            landDiv.style.animation = "landfall 5s 1"
+        }, 2000)
+    }
+
     loseGameAnimation() {
         let timer = setInterval(currentGame.fireCannon, 2000)
         setTimeout(function () {
@@ -296,6 +304,7 @@ class Game {
         }
         if (latestUpdate.gameStatus === 'won') {
             cmd.print('WE WON! Starting a new game soon.')
+            currentGame.winGameAnimation()
         } else if (latestUpdate.gameStatus === 'lost') {
             this.wordProgressElement.classList.add('bad-job')
             cmd.print('WE LOST... Starting a new game soon.')
@@ -330,3 +339,4 @@ document.getElementById('change-name').addEventListener('click', function () {
 })
 
 document.getElementById('fire-cannon').addEventListener('click', currentGame.loseGameAnimation)
+document.getElementById('landfall').addEventListener('click', currentGame.winGameAnimation)

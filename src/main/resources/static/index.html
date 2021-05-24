@@ -13,27 +13,28 @@
 
     <header>
         <h1 class="outer-text">Hangman.</h1>
-        <span class="outer-text" id="game-room-name">Guess the secret word. </span>
+        <div class="outer-text" id="game-room-name">Guess the secret word.</div>
         <div>
             <button id="change-room">Change Room</button>
             <button id="change-name">Change Name</button>
             <button id="fire-cannon">Fire Cannon</button>
+            <button id="landfall">Landfall</button>
         </div>
     </header>
 
     <article>
         <div class="flex-container" id="game-content">
-            <div id="game-info" class="halo">
+            <div class="halo" id="game-info">
                 <div id="word-progress"></div>
                 <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span><br/>
-                    Already guessed: <br /><span id="guessed-letters"></span></div>
+                    Already guessed: <br/><span id="guessed-letters"></span></div>
             </div>
             <div id="hanged-man">
-                <div id="waves" class="pixel-art"></div>
-                <div id="water" class="pixel-art"></div>
-                <div id="ship" class="pixel-art"></div>
-                <div id="ship-sail" class="pixel-art"></div>
-                <div id="land" class="pixel-art"></div>
+                <div class="pixel-art" id="waves"></div>
+                <div class="pixel-art" id="water"></div>
+                <div class="pixel-art" id="ship"></div>
+                <div class="pixel-art" id="ship-sail"></div>
+                <div class="pixel-art" id="land"></div>
             </div>
         </div>
 
