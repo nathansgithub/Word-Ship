@@ -222,6 +222,9 @@ article {
 }
 
 @keyframes toss-y {
+    from {
+        z-index: -80;
+    }
     to {
         top: 60%;
     }
@@ -250,6 +253,12 @@ article {
     }
 }
 
+@keyframes waves-pass {
+    to {
+        background-position-x: -192px;
+    }
+}
+
 .pixel-art {
     position: absolute;
     transform-origin: top left;
@@ -264,10 +273,11 @@ article {
 
     background: repeat-x url('../images/water-top.png');
 
-    animation: waves;
-    animation-duration: 1s;
-    animation-iteration-count: infinite;
-    animation-timing-function: steps(1, end);
+    animation: waves 1s infinite steps(1, end);
+}
+
+#waves.passing {
+    animation: waves-pass 3.5s linear infinite;
 }
 
 #water {
@@ -329,7 +339,7 @@ article {
     height: 32px;
     background-image: url('../images/cannon-ball.png');
     background-size: contain;
-    animation: toss-x 2s linear, toss-y 2.5s cubic-bezier(0.310, 0.440, 0.445, 1.650);
+    animation: toss-x 2s ease-out, toss-y 2.5s cubic-bezier(0.310, 0.440, 0.445, 1.650);
 }
 
 .explosion {

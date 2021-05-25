@@ -263,9 +263,13 @@ class Game {
 
     winGameAnimation() {
         const landDiv = document.getElementById('land')
+        const waterDiv = document.getElementById('waves')
         setTimeout(function () {
             landDiv.style.left = "calc(40% + 80px)"
             landDiv.style.animation = "landfall 5s 1"
+            setTimeout(function () {
+                waterDiv.classList.remove('passing')
+            }, 4500)
         }, 2000)
     }
 
