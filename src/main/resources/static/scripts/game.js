@@ -165,6 +165,7 @@ const cmd = {
     },
     enterText: function (event) {
         event.preventDefault()
+        if (cmd.element.classList.contains('not-ready')) return
         const message = document.getElementById('cmd-input').value
         const command = message.split(' ')[0]
         if (cmd.state === 'prompting') {
@@ -230,6 +231,7 @@ class Game {
 
     startGame() {
         cmd.updateState('guessing')
+        this.resetStage()
         if (localStorage.getItem('userName')) cmd.setUserName(localStorage.getItem('userName'))
         else cmd.promptAsync('Please choose a username:', cmd.setUserName)
         this.latestUpdate = {status: 'in progress'}
@@ -265,11 +267,10 @@ class Game {
         const landDiv = document.getElementById('land')
         const waterDiv = document.getElementById('waves')
         setTimeout(function () {
-            landDiv.style.left = "calc(40% + 80px)"
-            landDiv.style.animation = "landfall 5s 1"
+            landDiv.classList.add('approaching-ship')
             setTimeout(function () {
                 waterDiv.classList.remove('passing')
-            }, 4500)
+            }, 4000)
         }, 2000)
     }
 
@@ -278,10 +279,41 @@ class Game {
         setTimeout(function () {
             clearInterval(timer)
             timer = setInterval(currentGame.fireCannon, 250)
+            document.getElementById('waves').classList.remove('passing')
             setTimeout(function () {
                 clearInterval(timer)
+                setTimeout(function () {
+                    document.getElementById('ship').classList.add('sinking')
+                    document.getElementById('ship-sail').classList.add('sinking')
+                }, 1000)
             }, 5000)
         }, 5000)
+    }
+
+    resetStage() {
+        const shipDiv = document.getElementById('ship')
+        const sailDiv = document.getElementById('ship-sail')
+        const landDiv = document.getElementById('land')
+        const waterDiv = document.getElementById('waves')
+        if (shipDiv.classList.contains('sinking')) {
+            shipDiv.classList.add('resetting')
+            sailDiv.classList.add('resetting')
+            shipDiv.classList.remove('sinking')
+            sailDiv.classList.remove('sinking')
+            setTimeout(function () {
+                shipDiv.classList.remove('resetting')
+                sailDiv.classList.remove('resetting')
+                waterDiv.classList.add('passing')
+            }, 5000)
+        }
+        if (landDiv.classList.contains('approaching-ship')) {
+            landDiv.classList.remove('approaching-ship')
+            landDiv.classList.add('passing')
+            waterDiv.classList.add('passing')
+            setTimeout(function () {
+                landDiv.classList.remove('passing')
+            }, 10000)
+        }
     }
 
     update(latestUpdate) {
@@ -293,12 +325,13 @@ class Game {
             cmd.updateState('guessing')
             this.wordProgressElement.classList.remove('bad-job')
             cmd.print('Let\'s start a new game!')
+            this.startGame()
         }
 
         this.latestUpdate = latestUpdate
         this.badGuessCountElement.innerText = latestUpdate.badGuessCount
         this.guessedLettersElement.innerText = latestUpdate.lettersGuessed.join(
-            ', ')
+            ',')
         this.wordProgressElement.innerText = latestUpdate.wordProgress
 
         cmd.element.classList.remove('not-ready')
@@ -342,5 +375,6 @@ document.getElementById('change-name').addEventListener('click', function () {
     cmd.promptAsync('Enter a new name:', cmd.setUserName)
 })
 
-document.getElementById('fire-cannon').addEventListener('click', currentGame.loseGameAnimation)
+document.getElementById('sink-ship').addEventListener('click', currentGame.loseGameAnimation)
 document.getElementById('landfall').addEventListener('click', currentGame.winGameAnimation)
+document.getElementById('reset-stage').addEventListener('click', currentGame.resetStage)

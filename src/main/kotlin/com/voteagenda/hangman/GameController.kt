@@ -41,7 +41,7 @@ class GameController {
             Executors.newSingleThreadScheduledExecutor().schedule({
                 gameService.deleteGame(id)
                 this.broadcastGameUpdate(id)
-            }, 15, TimeUnit.SECONDS)
+            }, 20, TimeUnit.SECONDS)
         }
 
         return Response(game.userList, guess.user, lastGuess, game.getLatestUpdate())
