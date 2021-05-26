@@ -501,7 +501,7 @@ button {
     cursor: pointer;
     background-color: var(--primary-color);
     color: var(--white);
-    border: 2px solid #000;
+    border: 2px solid var(--black);
     font-family: 'Josefin Sans', 'sans-serif';
 }
 
@@ -521,6 +521,13 @@ button:hover, button:focus, button:active {
 .flex-column-reverse {
     display: flex;
     flex-direction: column;
+}
+
+#control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 4px;
+    background-color: var(--black);
 }
 
 #cmd-input-div {
@@ -551,8 +558,22 @@ button:hover, button:focus, button:active {
     text-underline-offset: 3px;
 }
 
+#user-list {
+    display: flex;
+    overflow: auto;
+    cursor: default;
+}
+
+#user-list > div {
+    margin: 0 0.4em;
+}
+
 .not-ready, .not-ready label, .not-ready input, .not-ready textarea {
     cursor: wait;
+}
+
+.debug {
+    visibility: collapse;
 }
 
 /* Preload images */

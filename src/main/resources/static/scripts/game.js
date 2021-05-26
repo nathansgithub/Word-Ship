@@ -73,13 +73,22 @@ const connectionHandler = {
 
 const cmd = {
 
-    commands: ['help', 'clear', 'quit'], // 'join'
+    commands: ['help', 'clear', 'debug', 'quit'], // 'join'
+    debug: false,
     element: document.getElementById('cmd'),
     promptElement: document.getElementById('cmd-prompt'),
     cmdInputElement: document.getElementById('cmd-input'),
     state: 'terminal',
     userInput: null,
     colors: new Map().set('green', 'var(--green)').set('red', 'var(--red)'),
+    toggleDebug: function () {
+        const debuggables = document.getElementsByClassName('debug')
+        for (let i = debuggables.length - 1; i >= 0; i--) {
+            if (this.debug) debuggables[i].style.visibility = 'visible'
+            else debuggables[i].style.visibility = 'collapse'
+        }
+        this.debug = !this.debug
+    },
     updateState: function (state) {
         if (!['guessing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
         this.state = state
@@ -178,6 +187,9 @@ const cmd = {
             switch (command) {
                 case 'clear':
                     cmd.clearChat()
+                    break
+                case 'debug':
+                    cmd.toggleDebug()
                     break
                 case 'quit':
                     cmd.quit()

@@ -14,13 +14,7 @@
     <header>
         <h1 class="outer-text">Hangman.</h1>
         <div class="outer-text" id="game-room-name">Guess the secret word.</div>
-        <div>
-            <button id="change-room">Change Room</button>
-            <button id="change-name">Change Name</button>
-            <button id="sink-ship">Sink Ship</button>
-            <button id="landfall">Landfall</button>
-            <button id="reset-stage">Reset Stage</button>
-        </div>
+
     </header>
 
     <article>
@@ -30,6 +24,7 @@
                 <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span><br/>
                     Already guessed: <br/><span id="guessed-letters"></span></div>
             </div>
+
             <div id="ship-display">
                 <div class="pixel-art passing" id="waves"></div>
                 <div class="pixel-art" id="water"></div>
@@ -40,7 +35,16 @@
             </div>
         </div>
 
+        <div id="control-panel">
+            <button id="change-room">Change Room</button>
+            <button id="change-name">Change Name</button>
+            <button class="debug" id="sink-ship">Sink Ship</button>
+            <button class="debug" id="landfall">Landfall</button>
+            <button class="debug" id="reset-stage">Reset Stage</button>
+        </div>
+
         <div class="not-ready" id="cmd">
+
             <div class="flex-column-reverse" id="chat-history">
                 <div id="cmd-input-div">
                     <form autocomplete="off" id="cmd-form" spellcheck="false">
