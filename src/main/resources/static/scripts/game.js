@@ -82,12 +82,12 @@ const cmd = {
     userInput: null,
     colors: new Map().set('green', 'var(--green)').set('red', 'var(--red)'),
     toggleDebug: function () {
+        this.debug = !this.debug
         const debuggables = document.getElementsByClassName('debug')
         for (let i = debuggables.length - 1; i >= 0; i--) {
             if (this.debug) debuggables[i].style.visibility = 'visible'
             else debuggables[i].style.visibility = 'collapse'
         }
-        this.debug = !this.debug
     },
     updateState: function (state) {
         if (!['guessing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
@@ -324,7 +324,7 @@ class Game {
             waterDiv.classList.add('passing')
             setTimeout(function () {
                 landDiv.classList.remove('passing')
-            }, 10000)
+            }, 13000)
         }
     }
 

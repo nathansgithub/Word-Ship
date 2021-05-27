@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Hangman.</title>
+    <title>Pirate Battle!</title>
     <meta content="Guess the secret word." name="description"/>
     <link rel="stylesheet" th:href="@{/style/main.css}">
 </head>
@@ -12,19 +12,13 @@
 <div id="game-window">
 
     <header>
-        <h1 class="outer-text">Hangman.</h1>
+        <h1 class="outer-text">Pirate Battle!</h1>
         <div class="outer-text" id="game-room-name">Guess the secret word.</div>
 
     </header>
 
     <article>
-        <div class="flex-container" id="game-content">
-            <div class="halo" id="game-info">
-                <div id="word-progress"></div>
-                <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span><br/>
-                    Already guessed: <br/><span id="guessed-letters"></span></div>
-            </div>
-
+        <div id="game-content">
             <div id="ship-display">
                 <div class="pixel-art passing" id="waves"></div>
                 <div class="pixel-art" id="water"></div>
@@ -32,6 +26,13 @@
                 <div class="pixel-art" id="ship-sail"></div>
                 <div class="pixel-art" id="land"></div>
                 <div class="pixel-art" id="barrel"></div>
+            </div>
+            <div id="game-info">
+                <div id="word-progress"></div>
+                <div class="flex-stretch">
+                    <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span></div>
+                    <div>Already guessed: <span id="guessed-letters"></span></div>
+                </div>
             </div>
         </div>
 
@@ -49,7 +50,7 @@
                 <div id="cmd-input-div">
                     <form autocomplete="off" id="cmd-form" spellcheck="false">
                         <label for="cmd-input" id="cmd-prompt"></label>
-                        <input class="flex-stretch" id="cmd-input" type="text"/>
+                        <input class="flex-item-stretch" id="cmd-input" type="text"/>
                     </form>
                 </div>
             </div>
@@ -58,7 +59,6 @@
     </article>
 </div>
 
-<script defer th:src="@{/scripts/onload.js}"></script>
 <script crossorigin="anonymous" defer
         src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.min.js"></script>
 <!--<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" defer></script>-->
