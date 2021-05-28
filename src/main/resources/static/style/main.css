@@ -90,6 +90,7 @@ article {
 
 #game-content {
     flex: 1 1 8em;
+    cursor: default;
     align-content: inherit;
 }
 
@@ -115,6 +116,10 @@ article {
     margin: 0;
     padding: 0;
     border-radius: 10px;
+}
+
+.minimized-y {
+    height: 0;
 }
 
 @keyframes waves {
@@ -539,16 +544,25 @@ button:hover, button:focus, button:active {
 }
 
 .user-tag {
-    margin-right: 6px;
-    padding: 2px;
+    display: inline-grid;
+    padding: 2px 0;
+    max-width: 15em;
+    white-space: nowrap;
+    overflow: hidden;
     text-decoration: underline;
     text-underline-offset: 3px;
+
+}
+
+#user-list-box {
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    max-width: 30%;
 }
 
 #user-list {
-    display: flex;
     overflow: auto;
-    cursor: default;
 }
 
 #user-list > div {

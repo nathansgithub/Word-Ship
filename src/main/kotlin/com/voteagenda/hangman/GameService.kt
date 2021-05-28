@@ -29,7 +29,10 @@ class GameService {
 
         if (game.status !== GameStatus.IN_PROGRESS) return null
 
-        game.userList.add(guess.user)
+        val existingUser = game.userList.find { user -> user.sessionId === guess.user.sessionId }
+        if (existingUser == null) {
+            game.userList.add(guess.user)
+        } else existingUser.userName = guess.user.userName
 
         var isCorrect = guess.isValid()
         if (isCorrect) {
@@ -77,7 +80,7 @@ class GameService {
 
     fun pickWord(): String {
         val content =
-            this::class.java.getResource("/word-lists/dolch-nouns.txt").readText().split(System.lineSeparator())
-        return content.random()
+            this::class.java.getResource("/word-lists/dolch-nouns.txt")?.readText()?.split(System.lineSeparator())
+        return content?.random() ?: "error"
     }
 }

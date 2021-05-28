@@ -34,6 +34,10 @@ const connectionHandler = {
                         currentUser = new User(messageBody.currentUser)
                     }
 
+                    if (messageBody.userList) {
+                        cmd.updateUserList(messageBody.userList)
+                    }
+
                     const lastGuess = messageBody.lastGuess
                     const latestUpdate = messageBody.latestUpdate
 
@@ -75,6 +79,7 @@ const cmd = {
 
     commands: ['help', 'clear', 'debug', 'quit'], // 'join'
     debug: false,
+    userListDisplay: true,
     element: document.getElementById('cmd'),
     promptElement: document.getElementById('cmd-prompt'),
     cmdInputElement: document.getElementById('cmd-input'),
@@ -82,12 +87,22 @@ const cmd = {
     userInput: null,
     colors: new Map().set('green', 'var(--green)').set('red', 'var(--red)'),
     toggleDebug: function () {
-        this.debug = !this.debug
+        cmd.debug = !cmd.debug
         const debuggables = document.getElementsByClassName('debug')
         for (let i = debuggables.length - 1; i >= 0; i--) {
-            if (this.debug) debuggables[i].style.visibility = 'visible'
+            if (cmd.debug) debuggables[i].style.visibility = 'visible'
             else debuggables[i].style.visibility = 'collapse'
         }
+    },
+    toggleUserList: function () {
+        cmd.userListDisplay = !cmd.userListDisplay
+        const userList = document.getElementById('user-list')
+        if (cmd.userListDisplay) userList.classList.remove('minimized-y')
+        else (userList).classList.add('minimized-y')
+    },
+    updateUserList: function (userList) {
+        const userListDiv = document.getElementById('user-list')
+        userListDiv.innerText = userList.map(user => user.userName).join('\n')
     },
     updateState: function (state) {
         if (!['guessing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
@@ -117,6 +132,7 @@ const cmd = {
             userTag.innerText = user.userName
             userTag.classList.add('user-tag')
             messageDiv.appendChild(userTag)
+            message = ' ' + message
         }
         messageDiv.appendChild(document.createTextNode(message))
         const cmdInputDivElement = document.getElementById('cmd-input-div')
@@ -146,6 +162,7 @@ const cmd = {
             'game-room-name').innerText = `Playing as ${currentUser.userName} in room \"${gameId}\"`
     },
     promptAsync: function (prompt, callback) {
+        if (this.state === 'prompting') return
         const previousState = this.state
         this.updateState('prompting')
         this.promptElement.innerText = prompt
@@ -386,6 +403,8 @@ document.getElementById('change-room').addEventListener('click', function () {
 document.getElementById('change-name').addEventListener('click', function () {
     cmd.promptAsync('Enter a new name:', cmd.setUserName)
 })
+
+document.getElementById('user-list-box').addEventListener('click', cmd.toggleUserList)
 
 document.getElementById('sink-ship').addEventListener('click', currentGame.loseGameAnimation)
 document.getElementById('landfall').addEventListener('click', currentGame.winGameAnimation)
