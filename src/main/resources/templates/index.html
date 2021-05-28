@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="rgb(14, 123, 92)" name="theme-color"/>
     <title>Pirate Battle!</title>
     <meta content="Guess the secret word." name="description"/>
     <link rel="stylesheet" th:href="@{/style/main.css}">
+    <link rel="stylesheet" th:href="@{/style/panorama.css}">
 </head>
 <body>
 
@@ -19,7 +21,7 @@
 
     <article>
         <div id="game-content">
-            <div id="ship-display">
+            <div id="panorama">
                 <div id="user-list-box"><strong>[Players]</strong>
                     <div id="user-list"></div>
                 </div>
@@ -32,9 +34,9 @@
             </div>
             <div id="game-info">
                 <div id="word-progress"></div>
-                <div class="flex-stretch">
-                    <div id="guess-info">Wrong guesses: <span id="bad-guess-count"></span></div>
-                    <div>Already guessed: <span id="guessed-letters"></span></div>
+                <div class="flex-stretch" id="guess-info">
+                    <div id="bad-guess-count"></div>
+                    <div id="guessed-letters"></div>
                 </div>
             </div>
         </div>
@@ -42,9 +44,9 @@
         <div id="control-panel">
             <button id="change-room">Change Room</button>
             <button id="change-name">Change Name</button>
-            <button class="debug" id="sink-ship">Sink Ship</button>
-            <button class="debug" id="landfall">Landfall</button>
-            <button class="debug" id="reset-stage">Reset Stage</button>
+            <button class="debug hidden" id="sink-ship">Sink Ship</button>
+            <button class="debug hidden" id="landfall">Landfall</button>
+            <button class="debug hidden" id="reset-stage">Reset Stage</button>
         </div>
 
         <div class="not-ready" id="cmd">

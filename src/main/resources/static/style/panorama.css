@@ -1,0 +1,298 @@
+@keyframes waves {
+    0% {
+        background-position-y: 0;
+    }
+    25% {
+        background-position-y: -64px;
+    }
+    50% {
+        background-position-y: -128px;
+    }
+    75% {
+        background-position-y: -192px;
+    }
+    100% {
+        background-position-y: 0;
+    }
+}
+
+@keyframes ship-idle {
+    0% {
+        background-position-y: 0;
+    }
+    20% {
+        background-position-y: -52px;
+    }
+    40% {
+        background-position-y: -104px;
+    }
+    60% {
+        background-position-y: -156px;
+    }
+    80% {
+        background-position-y: -208px;
+    }
+    100% {
+        background-position-y: 0;
+    }
+}
+
+@keyframes ship-hit {
+    0% {
+        background-position-y: 0;
+    }
+    25% {
+        background-position-y: -52px;
+    }
+    50% {
+        background-position-y: -104px;
+    }
+    75% {
+        background-position-y: -156px;
+    }
+}
+
+@keyframes sinking {
+    from {
+        opacity: 1;
+    }
+    40% {
+        opacity: 1;
+    }
+    to {
+        transform: translateY(196px);
+        opacity: 0;
+    }
+}
+
+@keyframes sail-windy {
+    0% {
+        background-position-y: 0;
+    }
+    25% {
+        background-position-y: -100px;
+    }
+    50% {
+        background-position-y: -200px;
+    }
+    75% {
+        background-position-y: -300px;
+    }
+    100% {
+        background-position-y: 0;
+    }
+}
+
+@keyframes move-from-screen-right {
+    from {
+        left: 100%;
+    }
+}
+
+@keyframes explosion {
+    0% {
+        background-position-y: 0;
+    }
+    14% {
+        background-position-y: -120px;
+    }
+    24% {
+        background-position-y: -240px;
+    }
+    36% {
+        background-position-y: -360px;
+    }
+    50% {
+        background-position-y: -480px;
+    }
+    64% {
+        background-position-y: -600px;
+    }
+}
+
+@keyframes toss-x {
+    from, to {
+        width: 0;
+        height: 0;
+    }
+    100% {
+        left: calc(40% - 32px);
+        width: 32px;
+        height: 32px;
+        visibility: hidden;
+    }
+}
+
+@keyframes toss-y {
+    from {
+        z-index: -80;
+    }
+    to {
+        top: 60%;
+    }
+    50% {
+        top: 0;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0px);
+    }
+    50% {
+        transform: translate(0, 16px);
+    }
+}
+
+@keyframes move-off-screen-left {
+    to {
+        left: -192px;
+    }
+}
+
+@keyframes waves-pass {
+    to {
+        background-position-x: -192px;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.pixel-art {
+    position: absolute;
+    transform-origin: top left;
+    background-repeat: no-repeat;
+}
+
+#waves {
+    z-index: -20;
+    top: calc(60% + 24px);
+    width: 100%;
+    height: 52px;
+
+    background: repeat-x url(../images/water-top.png);
+
+    animation: waves 1s infinite steps(1, end);
+}
+
+#waves.passing {
+    animation: waves-pass 3.5s linear infinite;
+}
+
+#water {
+    z-index: -20;
+    top: calc(60% + 76px);
+    bottom: 0;
+    width: 100%;
+    background-color: var(--water);;
+}
+
+#land {
+    z-index: -70;
+    top: calc(60% - 192px);
+    left: 100%;
+    right: 0;
+    height: 384px;
+    background: no-repeat url(../images/land-treasure.png);
+}
+
+#land.approaching-ship {
+    left: calc(40% + 80px);
+    animation: move-from-screen-right 7s ease-out 1;
+}
+
+#land.passing {
+    left: calc(40% + 80px);
+    animation: move-off-screen-left 13s linear;
+}
+
+#ship {
+    z-index: -50;
+    left: calc(40% - 80px);
+    top: 60%;
+    width: 160px;
+    height: 52px;
+    background-image: url(../images/ship.png);
+}
+
+#ship:not(.sinking) {
+    animation: ship-idle 2s infinite steps(1, end);
+}
+
+#ship.hit:not(.sinking):not(.resetting) {
+    background-image: url(../images/ship-hit.png);
+    animation: ship-hit 0.6s 1 steps(1, end);
+}
+
+#ship-sail {
+    z-index: -55;
+    left: calc(40% + 16px);
+    top: calc(60% - 92px);
+    width: 56px;
+    height: 100px;
+    background-image: url(../images/sail-windy.png);
+}
+
+#ship, #ship-sail {
+    transition: opacity 5s linear;
+}
+
+#ship-sail:not(.sinking):not(.resetting) {
+    animation: sail-windy 1.2s infinite steps(1, end);
+}
+
+#ship.resetting, #ship-sail.resetting {
+    animation: fade-in 5s ease-in-out 1;
+}
+
+.sinking {
+    opacity: 0;
+    animation: sinking 5s ease-in 1;
+}
+
+.cannon-ball {
+    z-index: -70;
+    left: calc(40% - 32px);
+    top: 60%;
+    width: 32px;
+    height: 32px;
+    background-image: url(../images/cannon-ball.png);
+    background-size: contain;
+    animation: toss-x 2s ease-out, toss-y 2.5s cubic-bezier(0.310, 0.440, 0.445, 1.650);
+}
+
+.explosion {
+    z-index: -40;
+    left: calc(40% - 66px);
+    top: calc(60% - 51px);
+    width: 108px;
+    height: 120px;
+    background-image: url(../images/cannon-ball-explosion.png);
+    animation: explosion;
+    animation-duration: 0.6s;
+    animation-timing-function: steps(1, end);
+    transform-origin: top left;
+}
+
+#barrel {
+    z-index: -100;
+    top: calc(60% - 16px);
+    left: 100%;
+    right: 0;
+    height: 60px;
+    background-image: url(../images/barrel.png);
+    animation: float 2s ease-in-out infinite, move-off-screen-left 14s linear infinite;
+}
+
+/* Preload images */
+body:after {
+    display: none;
+    content: url(../images/water-top.png) url(../images/ship-hit.png) url(../images/cannon-ball.png) url(../images/cannon-ball.png) url(../images/land-treasure.png);
+}

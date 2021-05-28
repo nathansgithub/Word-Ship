@@ -90,8 +90,8 @@ const cmd = {
         cmd.debug = !cmd.debug
         const debuggables = document.getElementsByClassName('debug')
         for (let i = debuggables.length - 1; i >= 0; i--) {
-            if (cmd.debug) debuggables[i].style.visibility = 'visible'
-            else debuggables[i].style.visibility = 'collapse'
+            if (cmd.debug) debuggables[i].classList.remove('hidden')
+            else debuggables[i].classList.add('hidden')
         }
     },
     toggleUserList: function () {
@@ -272,7 +272,7 @@ class Game {
     }
 
     fireCannon() {
-        const hangedManDiv = document.getElementById('ship-display')
+        const hangedManDiv = document.getElementById('panorama')
         const shipDiv = document.getElementById('ship')
         const cannonBall = document.createElement('div')
         cannonBall.classList.add('cannon-ball', 'pixel-art')
