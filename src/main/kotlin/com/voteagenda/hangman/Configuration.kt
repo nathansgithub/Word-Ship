@@ -7,6 +7,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 import java.io.IOException
+import java.util.*
 import javax.servlet.*
 import javax.servlet.http.HttpServletResponse
 
@@ -36,7 +37,13 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:8080", "https://voteagenda.com")
+        val properties = Properties()
+        var resource = this::class.java.getResource("/config.properties")
+        if (resource == null) resource = this::class.java.getResource("/config-example.properties")
+        properties.load(resource.openStream())
+
+        val clientUrls = properties.getProperty("server_urls").split(",").toTypedArray()
+        registry.addEndpoint("/ws").setAllowedOrigins(*clientUrls)
     }
 
 }
