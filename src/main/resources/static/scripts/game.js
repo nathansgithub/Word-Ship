@@ -2,9 +2,9 @@
 
 let currentGame
 
-const connectionHandler = {
+class ConnectionHandler {
 
-    client: new StompJs.Client({
+    client = new StompJs.Client({
         brokerURL: (location.hostname === 'localhost' ? 'ws://' : 'wss://') + location.host + location.pathname.replace(/\/$/, '') + '/ws',
         // connectHeaders: {
         //   login: 'user',
@@ -28,22 +28,25 @@ const connectionHandler = {
             this.subscribe(`/topic/game/${currentGame.id}`, currentGame.parseServerResponse)
         },
 
-    }),
-    activate: function () {
+    })
+
+    activate() {
         this.client.activate()
-    },
-    deactivate: function () {
+    }
+
+    deactivate() {
         this.client.deactivate()
-    },
-    publishMessage: function (topic, body) {
+    }
+
+    publishMessage(topic, body) {
         console.info('sending:', body)
         this.client.publish({destination: topic, body: JSON.stringify(body)})
-    },
-
+    }
 }
 
 const cmd = {
 
+    connectionHandler: new ConnectionHandler(),
     commands: ['help', 'clear', 'debug', 'quit'],
     debug: false,
     userListDisplay: true,
@@ -90,7 +93,7 @@ const cmd = {
         } else if (currentGame.latestUpdate.gameStatus === 'in progress') {
             if (currentGame.isValidLetter(message)) {
                 const body = {user: currentUser, letter: message}
-                connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
+                this.connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
             } else {
                 cmd.print(`\'${message}\' is not a valid letter.`)
             }
@@ -183,7 +186,7 @@ const cmd = {
 
         if (currentGame) {
             const body = {user: currentUser, letter: 'x'}
-            connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
+            this.connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
         }
 
         document.getElementById(
@@ -237,9 +240,9 @@ class Game {
         if (localStorage.getItem('userName')) cmd.setUserName(localStorage.getItem('userName'))
         else cmd.promptAsync('Please choose a username:', cmd.setUserName)
         this.latestUpdate = {status: 'in progress'}
-        connectionHandler.deactivate()
+        cmd.connectionHandler.deactivate()
         this.wordProgressElement.classList.remove('bad-job')
-        connectionHandler.activate()
+        cmd.connectionHandler.activate()
         cmd.print(`You are playing a game in room \"${this.id}\"`, '#99f')
         cmd.cmdInputElement.focus()
     }
@@ -404,15 +407,11 @@ if (!gameId) cmd.joinGame()
 let currentUser
 currentGame = new Game(gameId)
 
-cmd.element.addEventListener('submit', cmd.submitText, true)
-document.getElementById('change-room').addEventListener('click', function () {
-    cmd.promptAsync('Enter a new game id or an existing game id to join a game in progress:', cmd.joinGame)
-})
-document.getElementById('change-name').addEventListener('click', function () {
-    cmd.promptAsync('Enter a new username:', cmd.setUserName)
-})
-document.getElementById('user-list-box').addEventListener('click', cmd.toggleUserList)
+cmd.element.addEventListener('submit', (event) => cmd.submitText(event), true)
+document.getElementById('change-room').addEventListener('click', () => cmd.promptAsync('Enter a new game id or an existing game id to join a game in progress:', (id) => cmd.joinGame(id)))
+document.getElementById('change-name').addEventListener('click', () => cmd.promptAsync('Enter a new username:', (userName) => cmd.setUserName(userName)))
+document.getElementById('user-list-box').addEventListener('click', () => cmd.toggleUserList())
 
-document.getElementById('sink-ship').addEventListener('click', currentGame.loseGameAnimation)
-document.getElementById('landfall').addEventListener('click', currentGame.winGameAnimation)
-document.getElementById('reset-stage').addEventListener('click', currentGame.resetPanorama)
+document.getElementById('sink-ship').addEventListener('click', () => currentGame.loseGameAnimation())
+document.getElementById('landfall').addEventListener('click', () => currentGame.winGameAnimation())
+document.getElementById('reset-stage').addEventListener('click', () => currentGame.resetPanorama())
