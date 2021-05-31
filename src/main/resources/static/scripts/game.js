@@ -57,47 +57,47 @@ const cmd = {
     userInput: null,
     colors: new Map().set('green', 'var(--green)').set('red', 'var(--red)'),
     toggleDebug: function () {
-        cmd.debug = !cmd.debug
+        this.debug = !this.debug
         const debuggables = document.getElementsByClassName('debug')
         for (let i = debuggables.length - 1; i >= 0; i--) {
-            if (cmd.debug) debuggables[i].classList.remove('hidden')
+            if (this.debug) debuggables[i].classList.remove('hidden')
             else debuggables[i].classList.add('hidden')
         }
     },
     submitText: function (event) {
         event.preventDefault()
-        if (cmd.element.classList.contains('not-ready')) return
+        if (this.element.classList.contains('not-ready')) return
         const message = document.getElementById('cmd-input').value
         const command = message.split(' ')[0]
-        if (cmd.state === 'prompting') {
-            cmd.userInput = message
-            cmd.resetInput()
+        if (this.state === 'prompting') {
+            this.userInput = message
+            this.resetInput()
             return
         }
         if (currentGame.latestUpdate.gameStatus !== 'in progress' ||
-            cmd.commands.includes(command)) {
+            this.commands.includes(command)) {
             switch (command) {
                 case 'clear':
-                    cmd.clear()
+                    this.clear()
                     break
                 case 'debug':
-                    cmd.toggleDebug()
+                    this.toggleDebug()
                     break
                 case 'quit':
-                    cmd.quit()
+                    this.quit()
                     break
                 default:
-                    cmd.printHelp()
+                    this.printHelp()
             }
-            cmd.resetInput()
+            this.resetInput()
         } else if (currentGame.latestUpdate.gameStatus === 'in progress') {
             if (currentGame.isValidLetter(message)) {
                 const body = {user: currentUser, letter: message}
                 this.connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
             } else {
-                cmd.print(`\'${message}\' is not a valid letter.`)
+                this.print(`\'${message}\' is not a valid letter.`)
             }
-            cmd.resetInput()
+            this.resetInput()
         }
     },
     promptAsync: function (prompt, callback) {
@@ -108,13 +108,13 @@ const cmd = {
         this.cmdInputElement.scrollIntoView()
         this.cmdInputElement.focus()
 
-        function loop() {
-            if (cmd.userInput) {
-                cmd.updateState(previousState)
-                callback(cmd.userInput)
-                cmd.userInput = null
+        const loop = () => {
+            if (this.userInput) {
+                this.updateState(previousState)
+                callback(this.userInput)
+                this.userInput = null
             } else {
-                setTimeout(loop, 0.2)
+                setTimeout(() => loop(), 0.2)
             }
         }
 
@@ -154,9 +154,9 @@ const cmd = {
         document.getElementById('cmd-form').reset()
     },
     toggleUserList: function () {
-        cmd.userListDisplay = !cmd.userListDisplay
+        this.userListDisplay = !this.userListDisplay
         const userList = document.getElementById('user-list')
-        if (cmd.userListDisplay) userList.classList.remove('minimized-y')
+        if (this.userListDisplay) userList.classList.remove('minimized-y')
         else (userList).classList.add('minimized-y')
     },
     repopulateUserList: function (userList) {
