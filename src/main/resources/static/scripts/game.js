@@ -1,5 +1,7 @@
 'use strict'
 
+let currentGame
+
 const connectionHandler = {
 
     client: new StompJs.Client({
@@ -23,42 +25,7 @@ const connectionHandler = {
             console.log('Additional details: ' + frame.body)
         },
         onConnect: function () {
-            this.subscribe(`/topic/game/${currentGame.id}`,
-                function (message) {
-
-                    const messageBody = JSON.parse(message.body)
-                    console.info('receiving:', messageBody)
-
-                    if (messageBody.currentUser && (!currentUser || !currentUser.colorHSL)) {
-                        messageBody.currentUser.userName = currentUser.userName
-                        currentUser = new User(messageBody.currentUser)
-                    }
-
-                    if (messageBody.userList) {
-                        cmd.updateUserList(messageBody.userList)
-                    }
-
-                    const lastGuess = messageBody.lastGuess
-                    const latestUpdate = messageBody.latestUpdate
-
-                    if (lastGuess && lastGuess.valid) {
-                        switch (lastGuess.correct) {
-                            case true:
-                                cmd.print(`correctly guessed \"${lastGuess.letter}\"`,
-                                    cmd.colors.get('green'), lastGuess.user)
-                                break
-                            case false:
-                                cmd.print(`incorrectly guessed \"${lastGuess.letter}\"`,
-                                    cmd.colors.get('red'), lastGuess.user)
-                                setTimeout(currentGame.fireCannon, Math.floor(Math.random() * 1000))
-                                break
-                        }
-                    }
-
-                    if (latestUpdate) {
-                        currentGame.update(latestUpdate)
-                    }
-                })
+            this.subscribe(`/topic/game/${currentGame.id}`, currentGame.parseServerResponse)
         },
 
     }),
@@ -77,7 +44,7 @@ const connectionHandler = {
 
 const cmd = {
 
-    commands: ['help', 'clear', 'debug', 'quit'], // 'join'
+    commands: ['help', 'clear', 'debug', 'quit'],
     debug: false,
     userListDisplay: true,
     element: document.getElementById('cmd'),
@@ -94,74 +61,41 @@ const cmd = {
             else debuggables[i].classList.add('hidden')
         }
     },
-    toggleUserList: function () {
-        cmd.userListDisplay = !cmd.userListDisplay
-        const userList = document.getElementById('user-list')
-        if (cmd.userListDisplay) userList.classList.remove('minimized-y')
-        else (userList).classList.add('minimized-y')
-    },
-    updateUserList: function (userList) {
-        const userListDiv = document.getElementById('user-list')
-        userListDiv.innerText = userList.map(user => user.userName).join('\n')
-    },
-    updateState: function (state) {
-        if (!['guessing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
-        this.state = state
-        console.info('changing state to ' + state)
-
-        switch (state) {
-            case 'guessing':
-                this.promptElement.innerText = 'Guess a letter: '
-                break
-            case 'terminal':
-                this.promptElement.innerText = 'Enter command: '
-                break
-            case 'prompting':
-                break
+    submitText: function (event) {
+        event.preventDefault()
+        if (cmd.element.classList.contains('not-ready')) return
+        const message = document.getElementById('cmd-input').value
+        const command = message.split(' ')[0]
+        if (cmd.state === 'prompting') {
+            cmd.userInput = message
+            cmd.resetInput()
+            return
         }
-    },
-    print: function (message, color = 'default', user = {}) {
-        const chats = document.getElementById('chat-history')
-        const messageDiv = document.createElement('div')
-        messageDiv.classList.add('chat-history-line')
-        messageDiv.style.color = color
-        if (Object.keys(user).length > 0) {
-            const userTag = document.createElement('span')
-            if (user.colorHSL) {
-                const colorHSL = user.colorHSL
-                userTag.style.color = `hsl(${colorHSL[0]}, ${colorHSL[1]}%, ${colorHSL[2]}%)`
+        if (currentGame.latestUpdate.gameStatus !== 'in progress' ||
+            cmd.commands.includes(command)) {
+            switch (command) {
+                case 'clear':
+                    cmd.clear()
+                    break
+                case 'debug':
+                    cmd.toggleDebug()
+                    break
+                case 'quit':
+                    cmd.quit()
+                    break
+                default:
+                    cmd.printHelp()
             }
-            userTag.innerText = user.userName
-            userTag.classList.add('user-tag')
-            messageDiv.appendChild(userTag)
-            message = ' ' + message
+            cmd.resetInput()
+        } else if (currentGame.latestUpdate.gameStatus === 'in progress') {
+            if (currentGame.isValidLetter(message)) {
+                const body = {user: currentUser, letter: message}
+                connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
+            } else {
+                cmd.print(`\'${message}\' is not a valid letter.`)
+            }
+            cmd.resetInput()
         }
-        messageDiv.appendChild(document.createTextNode(message))
-        const cmdInputDivElement = document.getElementById('cmd-input-div')
-        chats.insertBefore(messageDiv, cmdInputDivElement)
-        if (chats.childNodes.length > 100) {
-            chats.childNodes[0].remove()
-        }
-        cmdInputDivElement.scrollIntoView()
-    },
-    clearChat: function () {
-        const chatLines = document.getElementsByClassName('chat-history-line')
-        for (let i = chatLines.length - 1; i >= 0; i--) {
-            chatLines[i].parentNode.removeChild(chatLines[i])
-        }
-    },
-    clearInput: function () {
-        document.getElementById('cmd-form').reset()
-    },
-    printHelp: function () {
-        this.print(`Valid commands are: ${this.commands.join(', ')}`)
-    },
-    setUserName: function (userName) {
-        localStorage.setItem('userName', userName)
-        if (currentUser) currentUser.userName = userName
-        else currentUser = new User({userName: userName})
-        document.getElementById(
-            'game-room-name').innerText = `Playing as ${currentUser.userName} in room \"${gameId}\"`
     },
     promptAsync: function (prompt, callback) {
         if (this.state === 'prompting') return
@@ -183,49 +117,88 @@ const cmd = {
 
         loop()
     },
+    print: function (message, color = 'default', user = {}) {
+        const previousLines = document.getElementById('chat-history')
+        const messageDiv = document.createElement('div')
+        messageDiv.classList.add('chat-history-line')
+        messageDiv.style.color = color
+        if (Object.keys(user).length > 0) {
+            const userTag = document.createElement('span')
+            if (user.colorHSL) {
+                const colorHSL = user.colorHSL
+                userTag.style.color = `hsl(${colorHSL[0]}, ${colorHSL[1]}%, ${colorHSL[2]}%)`
+            }
+            userTag.innerText = user.userName
+            userTag.classList.add('user-tag')
+            messageDiv.appendChild(userTag)
+            message = ' ' + message
+        }
+        messageDiv.appendChild(document.createTextNode(message))
+        const cmdInputDivElement = document.getElementById('cmd-input-div')
+        previousLines.insertBefore(messageDiv, cmdInputDivElement)
+        if (previousLines.childNodes.length > 100) {
+            previousLines.childNodes[0].remove()
+        }
+        cmdInputDivElement.scrollIntoView()
+    },
+    clear: function () {
+        const lines = document.getElementsByClassName('chat-history-line')
+        for (let i = lines.length - 1; i >= 0; i--) {
+            lines[i].parentNode.removeChild(lines[i])
+        }
+    },
+    resetInput: function () {
+        document.getElementById('cmd-form').reset()
+    },
+    toggleUserList: function () {
+        cmd.userListDisplay = !cmd.userListDisplay
+        const userList = document.getElementById('user-list')
+        if (cmd.userListDisplay) userList.classList.remove('minimized-y')
+        else (userList).classList.add('minimized-y')
+    },
+    repopulateUserList: function (userList) {
+        const userListDiv = document.getElementById('user-list')
+        userListDiv.innerText = userList.map(user => user.userName).join('\n')
+    },
+    updateState: function (state) {
+        if (!['playing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
+        this.state = state
+        console.info('changing state to ' + state)
+
+        switch (state) {
+            case 'playing':
+                this.promptElement.innerText = 'Guess a letter: '
+                break
+            case 'terminal':
+                this.promptElement.innerText = 'Enter command: '
+                break
+            case 'prompting':
+                break
+        }
+    },
+    setUserName: function (userName) {
+        localStorage.setItem('userName', userName)
+        if (currentUser) currentUser.userName = userName
+        else currentUser = new User({userName: userName})
+
+        if (currentGame) {
+            const body = {user: currentUser, letter: 'x'}
+            connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
+        }
+
+        document.getElementById(
+            'game-room-name').innerText = `Playing as ${currentUser.userName} in room \"${gameId}\"`
+    },
     joinGame: function (id) {
         if (!id) id = 'secret%20club'
         window.location.replace(location.href.replace(location.search, '').replace(/index.html$/, '').replace(/\/$/, '') + '?game=' + id)
     },
+    printHelp: function () {
+        this.print(`Valid commands are: ${this.commands.join(', ')}`)
+    },
     quit: function () {
         this.print('You shrugged and gave up.')
     },
-    enterText: function (event) {
-        event.preventDefault()
-        if (cmd.element.classList.contains('not-ready')) return
-        const message = document.getElementById('cmd-input').value
-        const command = message.split(' ')[0]
-        if (cmd.state === 'prompting') {
-            cmd.userInput = message
-            cmd.clearInput()
-            return
-        }
-        if (currentGame.latestUpdate.gameStatus !== 'in progress' ||
-            cmd.commands.includes(command)) {
-            switch (command) {
-                case 'clear':
-                    cmd.clearChat()
-                    break
-                case 'debug':
-                    cmd.toggleDebug()
-                    break
-                case 'quit':
-                    cmd.quit()
-                    break
-                default:
-                    cmd.printHelp()
-            }
-            cmd.clearInput()
-        } else if (currentGame.latestUpdate.gameStatus === 'in progress') {
-            if (currentGame.isValidLetter(message)) {
-                const body = {user: currentUser, letter: message}
-                connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
-            } else {
-                cmd.print(`\'${message}\' is not a valid letter.`)
-            }
-            cmd.clearInput()
-        }
-    }
 
 }
 
@@ -233,7 +206,6 @@ class User {
 
     userName
     colorHSL
-    sessionId
 
     constructor(object) {
         for (const property in object) {
@@ -256,12 +228,12 @@ class Game {
 
     constructor(id) {
         this.id = id
-        this.startGame(id)
+        this.start(id)
     }
 
-    startGame() {
-        cmd.updateState('guessing')
-        this.resetStage()
+    start() {
+        cmd.updateState('playing')
+        this.resetPanorama()
         if (localStorage.getItem('userName')) cmd.setUserName(localStorage.getItem('userName'))
         else cmd.promptAsync('Please choose a username:', cmd.setUserName)
         this.latestUpdate = {status: 'in progress'}
@@ -320,7 +292,7 @@ class Game {
         }, 5000)
     }
 
-    resetStage() {
+    resetPanorama() {
         const shipDiv = document.getElementById('ship')
         const sailDiv = document.getElementById('ship-sail')
         const landDiv = document.getElementById('land')
@@ -346,16 +318,53 @@ class Game {
         }
     }
 
+    parseServerResponse(response) {
+
+
+        const messageBody = JSON.parse(response.body)
+        console.info('receiving:', messageBody)
+
+        if (messageBody.currentUser && (!currentUser || !currentUser.colorHSL)) {
+            messageBody.currentUser.userName = currentUser.userName
+            currentUser = new User(messageBody.currentUser)
+        }
+
+        if (messageBody.userList) {
+            cmd.repopulateUserList(messageBody.userList)
+        }
+
+        const lastGuess = messageBody.lastGuess
+        const latestUpdate = messageBody.latestUpdate
+
+        if (lastGuess && lastGuess.valid) {
+            switch (lastGuess.correct) {
+                case true:
+                    cmd.print(`correctly guessed \"${lastGuess.letter}\"`,
+                        cmd.colors.get('green'), lastGuess.user)
+                    break
+                case false:
+                    cmd.print(`incorrectly guessed \"${lastGuess.letter}\"`,
+                        cmd.colors.get('red'), lastGuess.user)
+                    setTimeout(currentGame.fireCannon, Math.floor(Math.random() * 1000))
+                    break
+            }
+        }
+
+        if (latestUpdate) {
+            currentGame.update(latestUpdate)
+        }
+    }
+
     update(latestUpdate) {
 
         // Run on game reset
         if (this.latestUpdate.gameStatus && this.latestUpdate.gameStatus !==
             'in progress' &&
             latestUpdate.gameStatus === 'in progress') {
-            cmd.updateState('guessing')
+            cmd.updateState('playing')
             this.wordProgressElement.classList.remove('bad-job')
             cmd.print('Let\'s start a new game!')
-            this.startGame()
+            this.start()
         }
 
         this.latestUpdate = latestUpdate
@@ -393,20 +402,17 @@ const urlQuery = new URLSearchParams(window.location.search)
 const gameId = urlQuery.get('game')
 if (!gameId) cmd.joinGame()
 let currentUser
-let currentGame = new Game(gameId)
+currentGame = new Game(gameId)
 
-cmd.element.addEventListener('submit', cmd.enterText, true)
-
+cmd.element.addEventListener('submit', cmd.submitText, true)
 document.getElementById('change-room').addEventListener('click', function () {
     cmd.promptAsync('Enter a new game id or an existing game id to join a game in progress:', cmd.joinGame)
 })
-
 document.getElementById('change-name').addEventListener('click', function () {
-    cmd.promptAsync('Enter a new name:', cmd.setUserName)
+    cmd.promptAsync('Enter a new username:', cmd.setUserName)
 })
-
 document.getElementById('user-list-box').addEventListener('click', cmd.toggleUserList)
 
 document.getElementById('sink-ship').addEventListener('click', currentGame.loseGameAnimation)
 document.getElementById('landfall').addEventListener('click', currentGame.winGameAnimation)
-document.getElementById('reset-stage').addEventListener('click', currentGame.resetStage)
+document.getElementById('reset-stage').addEventListener('click', currentGame.resetPanorama)
