@@ -27,12 +27,11 @@ class GameService {
 
     fun addGuess(game: Game, guess: Guess): Guess? {
 
+        if (guess.letter === null) return null
+        if (game.status === GameStatus.ABANDONED) game.status = GameStatus.IN_PROGRESS
         if (game.status !== GameStatus.IN_PROGRESS) return null
 
-        val existingUser = game.userList.find { user -> user.sessionId === guess.user.sessionId }
-        if (existingUser == null) {
-            game.userList.add(guess.user)
-        } else existingUser.userName = guess.user.userName
+        guess.user = game.updateUser(guess.user)
 
         var isCorrect = guess.isValid()
         if (isCorrect) {
@@ -69,13 +68,10 @@ class GameService {
         return guess
     }
 
-    fun disconnectUser(sessionId: String) {
-        val game = gamesByUserId.remove(sessionId) ?: return
-        val user = game.userList.find { user -> user.sessionId == sessionId }
-        game.userList.remove(user)
-
-        // Delete game after all players flee
-        if (game.userList.isEmpty()) gamesByGameId.remove(game.id)
+    fun disconnectUser(sessionId: String): Game? {
+        val game = gamesByUserId.remove(sessionId) ?: return null
+        game.userList.removeIf { user -> user.sessionId.equals(sessionId) }
+        return game
     }
 
     fun pickWord(): String {

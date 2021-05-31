@@ -25,10 +25,22 @@ data class Game(val id: String, val word: String) {
         return LatestUpdate(statusString, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
     }
 
+    fun updateUser(user: User) : User {
+        var existingUser = userList.find { userListUser -> userListUser.sessionId === user.sessionId }
+        if (existingUser == null) {
+            existingUser = User(userName = user.userName, sessionId = user.sessionId)
+            userList.add(existingUser)
+        } else existingUser.userName = user.userName
+
+        if (status === GameStatus.ABANDONED) status = GameStatus.IN_PROGRESS
+
+        return existingUser
+    }
+
 }
 
 enum class GameStatus {
-    IN_PROGRESS, WON, LOST
+    IN_PROGRESS, WON, LOST, ABANDONED
 }
 
 data class LatestUpdate(
@@ -39,12 +51,13 @@ data class LatestUpdate(
     val lettersGuessed: Set<String>
 )
 
-class Guess(var user: User, letter: String, var isGameEndingGuess: Boolean = false) {
+class Guess(var user: User, letter: String?, var isGameEndingGuess: Boolean = false) {
 
-    val letter = letter.lowercase(Locale.getDefault())
+    val letter = letter?.lowercase(Locale.getDefault())
     var isCorrect = false
 
     fun isValid(): Boolean {
+        if (letter === null) return false
         if (letter.length != 1) return false
         if (!letter.matches("[A-Za-z]".toRegex())) return false
         return true

@@ -2,6 +2,7 @@ package com.voteagenda.hangman
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
@@ -29,6 +30,7 @@ class CORSFilter : Filter {
 
 @Configuration
 @EnableWebSocketMessageBroker
+@EnableScheduling
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
@@ -40,9 +42,9 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
         val properties = Properties()
         var resource = this::class.java.getResource("/config.properties")
         if (resource == null) resource = this::class.java.getResource("/config-example.properties")
-        properties.load(resource.openStream())
+        if (resource != null) properties.load(resource.openStream())
 
-        val clientUrls = properties.getProperty("server_urls").split(",").toTypedArray()
+        val clientUrls = properties.getProperty("client_urls").split(",").toTypedArray()
         registry.addEndpoint("/ws").setAllowedOrigins(*clientUrls)
     }
 

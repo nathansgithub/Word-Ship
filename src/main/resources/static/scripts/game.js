@@ -30,7 +30,7 @@ const connectionHandler = {
                     console.info('receiving:', messageBody)
 
                     if (messageBody.currentUser && (!currentUser || !currentUser.colorHSL)) {
-                        if (currentUser) messageBody.currentUser.userName = currentUser.userName
+                        messageBody.currentUser.userName = currentUser.userName
                         currentUser = new User(messageBody.currentUser)
                     }
 
@@ -127,8 +127,10 @@ const cmd = {
         messageDiv.style.color = color
         if (Object.keys(user).length > 0) {
             const userTag = document.createElement('span')
-            const colorHSL = user.colorHSL
-            userTag.style.color = `hsl(${colorHSL[0]}, ${colorHSL[1]}%, ${colorHSL[2]}%)`
+            if (user.colorHSL) {
+                const colorHSL = user.colorHSL
+                userTag.style.color = `hsl(${colorHSL[0]}, ${colorHSL[1]}%, ${colorHSL[2]}%)`
+            }
             userTag.innerText = user.userName
             userTag.classList.add('user-tag')
             messageDiv.appendChild(userTag)
@@ -166,7 +168,6 @@ const cmd = {
         const previousState = this.state
         this.updateState('prompting')
         this.promptElement.innerText = prompt
-        console.log(this.cmdInputElement)
         this.cmdInputElement.scrollIntoView()
         this.cmdInputElement.focus()
 

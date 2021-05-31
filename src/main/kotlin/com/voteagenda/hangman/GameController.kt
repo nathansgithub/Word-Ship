@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.util.ClassUtils
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -31,30 +32,28 @@ class GameController {
     fun processGuess(
         @DestinationVariable id: String,
         @Header("simpSessionId") sessionId: String,
-        guess: Guess
+        request: Guess
     ): Response {
-        guess.user.sessionId = sessionId
+        request.user.sessionId = sessionId
         val game = gameService.getGame(id)
-        val lastGuess = gameService.addGuess(game, guess)
+        var lastGuess: Guess? = null
 
-        if (lastGuess?.isGameEndingGuess == true) {
-            Executors.newSingleThreadScheduledExecutor().schedule({
-                gameService.deleteGame(id)
-                this.broadcastGameUpdate(id)
-            }, 20, TimeUnit.SECONDS)
+        if (request.letter != null) {
+            lastGuess = gameService.addGuess(game, request)
+
+            if (lastGuess?.isGameEndingGuess == true) {
+                Executors.newSingleThreadScheduledExecutor().schedule({
+                    gameService.deleteGame(id)
+                    this.broadcastGameUpdate(id)
+                }, 20, TimeUnit.SECONDS)
+            }
         }
 
-        return Response(game.userList, guess.user, lastGuess, game.getLatestUpdate())
-    }
-
-    @SubscribeMapping("/game/{id}")
-    fun getGame(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String): Response {
-        val game = gameService.getGame(id)
-        gameService.gamesByUserId.put(sessionId, game)
         return Response(
-            currentUser = User(sessionId = sessionId),
-            userList = game.userList,
-            latestUpdate = game.getLatestUpdate()
+            game.userList,
+            User(userName = request.user.userName, sessionId = sessionId),
+            lastGuess,
+            game.getLatestUpdate()
         )
     }
 
@@ -66,9 +65,30 @@ class GameController {
         this.messagingTemplate.convertAndSend("/topic/game/${id}", response)
     }
 
+    @SubscribeMapping("/game/{id}")
+    fun addUser(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String) {
+        val game = gameService.getGame(id)
+        gameService.gamesByUserId[sessionId] = game
+        game.updateUser(User(userName = "Anon-${sessionId.substring(0, 6)}", sessionId = sessionId))
+        broadcastGameUpdate(game.id)
+    }
+
     @EventListener
-    fun disconnectUser(event: SessionDisconnectEvent) {
-        gameService.disconnectUser(event.sessionId)
+    fun removeUser(event: SessionDisconnectEvent) {
+        val game = gameService.disconnectUser(event.sessionId)
+        if (game != null) broadcastGameUpdate(game.id)
+    }
+
+    @Scheduled(fixedRate = 5000)
+    fun doScheduledMaintenance() {
+        for (game in gameService.gamesByGameId.values) {
+            if (game.status === GameStatus.ABANDONED) {
+                println("Deleting abandoned game \'${game.id}\'")
+                gameService.deleteGame(game.id)
+            } else {
+                if (game.userList.size == 0) game.status = GameStatus.ABANDONED
+            }
+        }
     }
 
     @ExceptionHandler(Throwable::class)
