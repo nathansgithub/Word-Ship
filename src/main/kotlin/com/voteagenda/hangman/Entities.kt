@@ -25,12 +25,16 @@ data class Game(val id: String, val word: String) {
         return LatestUpdate(statusString, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
     }
 
-    fun updateUser(user: User) : User {
+    fun updateUser(user: User): User {
         var existingUser = userList.find { userListUser -> userListUser.sessionId === user.sessionId }
+        val userName = user.userName ?: "Anon-${user.sessionId?.substring(0, 6)}"
+
         if (existingUser == null) {
-            existingUser = User(userName = user.userName, sessionId = user.sessionId)
+            existingUser = User(userName = userName, sessionId = user.sessionId)
             userList.add(existingUser)
-        } else existingUser.userName = user.userName
+        } else {
+            existingUser.userName = userName
+        }
 
         if (status === GameStatus.ABANDONED) status = GameStatus.IN_PROGRESS
 

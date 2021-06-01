@@ -36,14 +36,16 @@ class GameController {
     ): Response {
         request.user.sessionId = sessionId
         val game = gameService.getGame(id)
-        var lastGuess: Guess? = null
 
+        request.user = game.updateUser(request.user)
+
+        var lastGuess: Guess? = null
         if (request.letter != null) {
             lastGuess = gameService.addGuess(game, request)
 
             if (lastGuess?.isGameEndingGuess == true) {
                 Executors.newSingleThreadScheduledExecutor().schedule({
-                    gameService.deleteGame(id)
+                    gameService.restartGame(id)
                     this.broadcastGameUpdate(id)
                 }, 20, TimeUnit.SECONDS)
             }
@@ -51,7 +53,7 @@ class GameController {
 
         return Response(
             game.userList,
-            User(userName = request.user.userName, sessionId = sessionId),
+            request.user,
             lastGuess,
             game.getLatestUpdate()
         )
@@ -69,7 +71,7 @@ class GameController {
     fun addUser(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String) {
         val game = gameService.getGame(id)
         gameService.gamesByUserId[sessionId] = game
-        game.updateUser(User(userName = "Anon-${sessionId.substring(0, 6)}", sessionId = sessionId))
+        game.updateUser(User(sessionId = sessionId))
         broadcastGameUpdate(game.id)
     }
 

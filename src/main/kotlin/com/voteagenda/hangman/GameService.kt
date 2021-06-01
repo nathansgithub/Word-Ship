@@ -21,6 +21,12 @@ class GameService {
         return gamesByGameId[id] ?: createGame(id)
     }
 
+    fun restartGame(id: String) {
+        val userList = gamesByGameId[id]?.userList ?: mutableListOf()
+        gamesByGameId[id] = createGame(id)
+        gamesByGameId[id]?.userList?.addAll(userList)
+    }
+
     fun deleteGame(id: String) {
         gamesByGameId.remove(id)
     }
@@ -30,8 +36,6 @@ class GameService {
         if (guess.letter === null) return null
         if (game.status === GameStatus.ABANDONED) game.status = GameStatus.IN_PROGRESS
         if (game.status !== GameStatus.IN_PROGRESS) return null
-
-        guess.user = game.updateUser(guess.user)
 
         var isCorrect = guess.isValid()
         if (isCorrect) {

@@ -1,48 +1,10 @@
 'use strict'
 
-class ConnectionHandler {
-    client = new StompJs.Client({
-        brokerURL: (location.hostname === 'localhost' ? 'ws://' : 'wss://') + location.host + location.pathname.replace(/\/$/, '') + '/ws',
-        // connectHeaders: {
-        //   login: 'user',
-        //   passcode: 'password',
-        // },
-        reconnectDelay: 3000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
-        debug: function (str) {
-            // console.log(str)
-        },
-        onStompError: function (frame) {
-            // Will be invoked in case of error encountered at Broker
-            // Bad login/passcode typically will cause an error
-            // Complaint brokers will set `message` header with a brief message. Body may contain details.
-            // Compliant brokers will terminate the connection after any error
-            console.log('Broker reported error: ' + frame.headers['message'])
-            console.log('Additional details: ' + frame.body)
-        },
-        onConnect: function () {
-            this.subscribe(`/topic/game/${cmd.currentGame.id}`, (response) => cmd.currentGame.parseServerResponse(response))
-        },
-
-    })
-    activate = () => {
-        this.client.activate()
-    }
-    deactivate = () => {
-        this.client.deactivate()
-    }
-    publishMessage = (topic, body) => {
-        console.info('sending:', body)
-        this.client.publish({destination: topic, body: JSON.stringify(body)})
-    }
-}
-
 class Terminal {
 
-    connectionHandler = new ConnectionHandler()
-    currentGame = undefined
-    currentUser = undefined
+    connectionHandler
+    currentGame
+    currentUser = new User({})
     commands = ['help', 'clear', 'debug', 'quit']
     debug = false
     userListDisplay = true
@@ -54,10 +16,17 @@ class Terminal {
     colors = new Map().set('green', 'var(--green)').set('red', 'var(--red)')
 
     constructor() {
+
+        this.connectionHandler = new ConnectionHandler(this)
+        this.connectionHandler.activate()
+
         const urlQuery = new URLSearchParams(window.location.search)
         const gameId = urlQuery.get('game')
         if (!gameId) this.joinGame()
         this.currentGame = new Game(gameId, this)
+
+        // if (localStorage.getItem('userName')) this.setUserName(localStorage.getItem('userName'))
+        // else this.promptAsync('Please choose a username:', (userName) => this.setUserName(userName))
 
         document.getElementById('sink-ship').addEventListener('click', () => this.currentGame.loseGameAnimation())
         document.getElementById('landfall').addEventListener('click', () => this.currentGame.winGameAnimation())
@@ -199,9 +168,14 @@ class Terminal {
 
         if (this.currentGame) {
             const body = {user: this.currentUser}
-            this.connectionHandler.publishMessage(`/app/game/${this.currentGame.id}`, body)
+            console.info(`/app/game/${this.currentGame.id}`)
             document.getElementById(
                 'game-room-name').innerText = `Playing as ${this.currentUser.userName} in room \"${this.currentGame.id}\"`
+
+            this.connectionHandler.publishMessage(`/app/game/${this.currentGame.id}`, body)
+
+            // setTimeout(() => this.connectionHandler.publishMessage(`/app/game/${this.currentGame.id}`, body), 10)
+
         }
     }
     joinGame = (id) => {
@@ -215,6 +189,34 @@ class Terminal {
         this.print('You shrugged and gave up.')
     }
 
+}
+
+class ConnectionHandler {
+
+    terminal
+
+    client = new StompJs.Client({
+        brokerURL: (location.hostname === 'localhost' ? 'ws://' : 'wss://') + location.host + location.pathname.replace(/\/$/, '') + '/ws',
+        debug: (message) => {
+            // console.log(message)
+        },
+        onConnect: () => this.client.subscribe(`/topic/game/${this.terminal.currentGame.id}`, (response) => this.terminal.currentGame.parseServerResponse(response))
+    })
+
+    constructor(terminal) {
+        this.terminal = terminal
+    }
+
+    activate = () => {
+        this.client.activate()
+    }
+    deactivate = () => {
+        this.client.deactivate()
+    }
+    publishMessage = (topic, body) => {
+        console.info('sending:', body)
+        this.client.publish({destination: topic, body: JSON.stringify(body)})
+    }
 }
 
 class User {
@@ -248,12 +250,8 @@ class Game {
     start = () => {
         this.terminal.updateState('playing')
         this.resetPanorama()
-        if (localStorage.getItem('userName')) this.terminal.setUserName(localStorage.getItem('userName'))
-        else this.terminal.promptAsync('Please choose a username:', (userName) => this.terminal.setUserName(userName))
         this.latestUpdate = {status: 'in progress'}
-        this.terminal.connectionHandler.deactivate()
         this.wordProgressElement.classList.remove('bad-job')
-        this.terminal.connectionHandler.activate()
         this.terminal.print(`You are playing a game in room \"${this.id}\"`, '#99f')
         this.terminal.cmdInputElement.focus()
     }
