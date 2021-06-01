@@ -25,20 +25,20 @@ class ConnectionHandler {
             console.log('Additional details: ' + frame.body)
         },
         onConnect: function () {
-            this.subscribe(`/topic/game/${currentGame.id}`, currentGame.parseServerResponse)
+            this.subscribe(`/topic/game/${currentGame.id}`, (response) => currentGame.parseServerResponse(response))
         },
 
     })
 
-    activate() {
+    activate = () => {
         this.client.activate()
     }
 
-    deactivate() {
+    deactivate = () => {
         this.client.deactivate()
     }
 
-    publishMessage(topic, body) {
+    publishMessage = (topic, body) => {
         console.info('sending:', body)
         this.client.publish({destination: topic, body: JSON.stringify(body)})
     }
@@ -185,7 +185,7 @@ const cmd = {
         else currentUser = new User({userName: userName})
 
         if (currentGame) {
-            const body = {user: currentUser, letter: 'x'}
+            const body = {user: currentUser}
             this.connectionHandler.publishMessage(`/app/game/${currentGame.id}`, body)
         }
 
@@ -234,11 +234,11 @@ class Game {
         this.start(id)
     }
 
-    start() {
+    start = () => {
         cmd.updateState('playing')
         this.resetPanorama()
         if (localStorage.getItem('userName')) cmd.setUserName(localStorage.getItem('userName'))
-        else cmd.promptAsync('Please choose a username:', cmd.setUserName)
+        else cmd.promptAsync('Please choose a username:', (userName) => cmd.setUserName(userName))
         this.latestUpdate = {status: 'in progress'}
         cmd.connectionHandler.deactivate()
         this.wordProgressElement.classList.remove('bad-job')
@@ -247,7 +247,7 @@ class Game {
         cmd.cmdInputElement.focus()
     }
 
-    fireCannon() {
+    fireCannon = () => {
         const hangedManDiv = document.getElementById('panorama')
         const shipDiv = document.getElementById('ship')
         const cannonBall = document.createElement('div')
@@ -255,39 +255,39 @@ class Game {
         cannonBall.style.left = (5 + Math.floor(Math.random() * 90)) + "%"
         hangedManDiv.insertBefore(cannonBall, shipDiv)
 
-        setTimeout(function () {
+        setTimeout(() => {
             cannonBall.parentNode.removeChild(cannonBall)
             const explosion = document.createElement('div')
             explosion.classList.add('explosion', 'pixel-art')
             hangedManDiv.insertBefore(explosion, shipDiv)
             shipDiv.classList.add('hit')
-            setTimeout(function () {
+            setTimeout(() => {
                 explosion.parentNode.removeChild(explosion)
                 shipDiv.classList.remove('hit')
             }, 600)
         }, 2000)
     }
 
-    winGameAnimation() {
+    winGameAnimation = () => {
         const landDiv = document.getElementById('land')
         const waterDiv = document.getElementById('waves')
-        setTimeout(function () {
+        setTimeout(() => {
             landDiv.classList.add('approaching-ship')
-            setTimeout(function () {
+            setTimeout(() => {
                 waterDiv.classList.remove('passing')
             }, 4000)
         }, 2000)
     }
 
-    loseGameAnimation() {
-        let timer = setInterval(currentGame.fireCannon, 2000)
-        setTimeout(function () {
+    loseGameAnimation = () => {
+        let timer = setInterval(() => this.fireCannon(), 2000)
+        setTimeout(() => {
             clearInterval(timer)
-            timer = setInterval(currentGame.fireCannon, 250)
+            timer = setInterval(() => this.fireCannon(), 250)
             document.getElementById('waves').classList.remove('passing')
-            setTimeout(function () {
+            setTimeout(() => {
                 clearInterval(timer)
-                setTimeout(function () {
+                setTimeout(() => {
                     document.getElementById('ship').classList.add('sinking')
                     document.getElementById('ship-sail').classList.add('sinking')
                 }, 1000)
@@ -295,7 +295,7 @@ class Game {
         }, 5000)
     }
 
-    resetPanorama() {
+    resetPanorama = () => {
         const shipDiv = document.getElementById('ship')
         const sailDiv = document.getElementById('ship-sail')
         const landDiv = document.getElementById('land')
@@ -305,7 +305,7 @@ class Game {
             sailDiv.classList.add('resetting')
             shipDiv.classList.remove('sinking')
             sailDiv.classList.remove('sinking')
-            setTimeout(function () {
+            setTimeout(() => {
                 shipDiv.classList.remove('resetting')
                 sailDiv.classList.remove('resetting')
                 waterDiv.classList.add('passing')
@@ -315,14 +315,13 @@ class Game {
             landDiv.classList.remove('approaching-ship')
             landDiv.classList.add('passing')
             waterDiv.classList.add('passing')
-            setTimeout(function () {
+            setTimeout(() => {
                 landDiv.classList.remove('passing')
             }, 13000)
         }
     }
 
-    parseServerResponse(response) {
-
+    parseServerResponse = (response) => {
 
         const messageBody = JSON.parse(response.body)
         console.info('receiving:', messageBody)
@@ -348,17 +347,17 @@ class Game {
                 case false:
                     cmd.print(`incorrectly guessed \"${lastGuess.letter}\"`,
                         cmd.colors.get('red'), lastGuess.user)
-                    setTimeout(currentGame.fireCannon, Math.floor(Math.random() * 1000))
+                    setTimeout(() => this.fireCannon(), Math.floor(Math.random() * 1000))
                     break
             }
         }
 
         if (latestUpdate) {
-            currentGame.update(latestUpdate)
+            this.update(latestUpdate)
         }
     }
 
-    update(latestUpdate) {
+    update = (latestUpdate) => {
 
         // Run on game reset
         if (this.latestUpdate.gameStatus && this.latestUpdate.gameStatus !==
@@ -383,16 +382,16 @@ class Game {
         }
         if (latestUpdate.gameStatus === 'won') {
             cmd.print('WE WON! Starting a new game soon.')
-            currentGame.winGameAnimation()
+            this.winGameAnimation()
         } else if (latestUpdate.gameStatus === 'lost') {
             this.wordProgressElement.classList.add('bad-job')
             cmd.print('WE LOST... Starting a new game soon.')
-            currentGame.loseGameAnimation()
+            this.loseGameAnimation()
         }
 
     }
 
-    isValidLetter(letter) {
+    isValidLetter = (letter) => {
         if (letter.length !== 1) return false
         return /[A-Za-z]/.test(letter)
     }
