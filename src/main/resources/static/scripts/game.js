@@ -31,8 +31,8 @@ class Terminal {
         if (!gameId) this.joinGame()
         this.currentGame = new Game(gameId, this)
 
-        // if (localStorage.getItem('userName')) this.setUserName(localStorage.getItem('userName'))
-        // else this.promptAsync('Please choose a username:', (userName) => this.setUserName(userName))
+        if (localStorage.getItem('userName')) setTimeout(() => this.setUserName(localStorage.getItem('userName')), 100)
+        else this.promptAsync('Please choose a username:', (userName) => this.setUserName(userName))
 
         document.getElementById('sink-ship').addEventListener('click', () => this.currentGame.loseGameAnimation())
         document.getElementById('landfall').addEventListener('click', () => this.currentGame.winGameAnimation())
