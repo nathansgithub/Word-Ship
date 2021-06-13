@@ -294,5 +294,5 @@
 /* Preload images */
 body:after {
     display: none;
-    content: url(../images/water-top.png) url(../images/ship-hit.png) url(../images/cannon-ball.png) url(../images/cannon-ball.png) url(../images/land-treasure.png);
+    content: url(../images/water-top.png) url(../images/ship.png) url(../images/ship-hit.png) url(../images/cannon-ball.png) url(../images/cannon-ball.png) url(../images/land-treasure.png) url(../images/barrel.png);
 }
