@@ -40,9 +40,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         val properties = Properties()
-        var resource = this::class.java.getResource("/config.properties")
-        if (resource == null) resource = this::class.java.getResource("/config-example.properties")
-        if (resource != null) properties.load(resource.openStream())
+        properties.load(this::class.java.getResource("/config.properties")?.openStream())
 
         val clientUrls = properties.getProperty("client_urls").split(",").toTypedArray()
         registry.addEndpoint("/ws").setAllowedOrigins(*clientUrls)
