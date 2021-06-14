@@ -1,4 +1,4 @@
-package com.voteagenda.hangman
+package com.voteagenda.wordship
 
 import java.util.*
 

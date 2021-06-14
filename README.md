@@ -1,8 +1,8 @@
-# Pirate Battle!
+# Word Ship
 
 [![Java CI with Maven](https://github.com/nathansgithub/hangman/actions/workflows/maven.yml/badge.svg)](https://github.com/nathansgithub/hangman/actions/workflows/maven.yml)
 
-This is an online multiplayer hangman-style game.
+This is an online multiplayer hangman-style word game.
 
 It is written in Kotlin, HTML/CSS, and vanilla JavaScript. It uses STOMP over WebSockets to keep everyone in a game
 updated. I am partly using this project to get more familiar with Kotlin and Spring.

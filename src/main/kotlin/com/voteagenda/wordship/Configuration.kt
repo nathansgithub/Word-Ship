@@ -1,4 +1,4 @@
-package com.voteagenda.hangman
+package com.voteagenda.wordship
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry

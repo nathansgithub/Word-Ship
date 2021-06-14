@@ -1,4 +1,4 @@
-package com.voteagenda.hangman
+package com.voteagenda.wordship
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.event.EventListener
