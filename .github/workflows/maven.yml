@@ -28,5 +28,5 @@ jobs:
       - name: Add Known Hosts
         run: ssh-keyscan -H ${{ secrets.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
       - name: Deploy
-        run: rsync -az --chown=tomcat:tomcat ./target/hangman.war ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SERVER }}:/var/lib/tomcat/webapps/
+        run: rsync -az --chown=tomcat:tomcat ./target/word-ship.war ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SERVER }}:/var/lib/tomcat/webapps/
       
