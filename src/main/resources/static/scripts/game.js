@@ -325,6 +325,8 @@ class Game {
     }
     parseServerResponse = (response) => {
 
+        this.terminal.element.classList.remove('not-ready')
+
         const messageBody = JSON.parse(response.body)
         console.info('receiving:', messageBody)
 
@@ -374,8 +376,6 @@ class Game {
         this.elements.guessedLetters.innerText = latestUpdate['lettersGuessed'].join(
             ',')
         this.elements.wordProgress.innerText = latestUpdate.wordProgress
-
-        this.terminal.element.classList.remove('not-ready')
 
         if (latestUpdate['gameStatus'] !== 'in progress') {
             this.terminal.updateState('terminal')

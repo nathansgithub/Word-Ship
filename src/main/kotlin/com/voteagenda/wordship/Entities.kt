@@ -1,5 +1,8 @@
 package com.voteagenda.wordship
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 data class Game(val id: String, val word: String) {
@@ -10,6 +13,7 @@ data class Game(val id: String, val word: String) {
     var lettersGuessed = mutableSetOf<String>()
     var lettersAvailable: MutableSet<String> = listOfLetters()
     var wordProgress = "_".repeat(word.length)
+    var currentTurnUser: User? = null
 
     private fun listOfLetters(): MutableSet<String> {
         val alphabet = mutableSetOf<String>()
@@ -35,6 +39,8 @@ data class Game(val id: String, val word: String) {
         } else {
             existingUser.userName = userName
         }
+
+        if (currentTurnUser === null) currentTurnUser = user
 
         if (status === GameStatus.ABANDONED) status = GameStatus.IN_PROGRESS
 
@@ -68,7 +74,11 @@ class Guess(var user: User, letter: String?, var isGameEndingGuess: Boolean = fa
     }
 }
 
-data class User(var userName: String? = null, var sessionId: String? = null) {
+data class User(
+    var userName: String? = null,
+    var sessionId: String? = null,
+    @JsonIgnore var lastSeen: ZonedDateTime? = ZonedDateTime.now(ZoneId.of("US/Eastern"))
+) {
     val colorHSL = if (sessionId == null) null else listOf(
         sessionId!!.substring(0, 2).toInt(16) * 359 / 255,
         sessionId!!.substring(2, 4).toInt(16) * 70 / 255 + 30,

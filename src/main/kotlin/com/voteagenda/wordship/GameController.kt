@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
+import org.springframework.messaging.simp.user.SimpUserRegistry
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.util.ClassUtils
@@ -44,6 +45,7 @@ class GameController {
             lastGuess = gameService.addGuess(game, request)
 
             if (lastGuess?.isGameEndingGuess == true) {
+
                 Executors.newSingleThreadScheduledExecutor().schedule({
                     gameService.restartGame(id)
                     this.broadcastGameUpdate(id)

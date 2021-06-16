@@ -1,6 +1,9 @@
 package com.voteagenda.wordship
 
 import org.springframework.stereotype.Service
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class GameService {
@@ -22,7 +25,13 @@ class GameService {
     }
 
     fun restartGame(id: String) {
-        val userList = gamesByGameId[id]?.userList ?: mutableListOf()
+        val now = ZonedDateTime.now(ZoneId.of("US/Eastern"))
+        val userList = mutableListOf<User>()
+        for (user in gamesByGameId[id]?.userList ?: mutableListOf()) {
+            val secondsSinceLastSeen = ChronoUnit.SECONDS.between(user.lastSeen, now)
+            if (secondsSinceLastSeen < 60) userList.add(user)
+            println("${user.userName} was last seen: ${user.lastSeen}: $secondsSinceLastSeen seconds ago")
+        }
         gamesByGameId[id] = createGame(id)
         gamesByGameId[id]?.userList?.addAll(userList)
     }
@@ -34,6 +43,7 @@ class GameService {
     fun addGuess(game: Game, guess: Guess): Guess? {
 
         if (guess.letter === null) return null
+        if (game.currentTurnUser?.sessionId !== guess.user.sessionId) return null
         if (game.status === GameStatus.ABANDONED) game.status = GameStatus.IN_PROGRESS
         if (game.status !== GameStatus.IN_PROGRESS) return null
 
@@ -68,6 +78,9 @@ class GameService {
             game.status = GameStatus.WON
             guess.isGameEndingGuess = true
         }
+
+        val nextUserIndex = (game.userList.indexOf(guess.user) + 1) % game.userList.size
+        game.currentTurnUser = game.userList.elementAt(nextUserIndex)
 
         return guess
     }
