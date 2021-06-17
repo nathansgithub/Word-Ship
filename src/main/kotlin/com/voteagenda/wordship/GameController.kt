@@ -8,7 +8,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
-import org.springframework.messaging.simp.user.SimpUserRegistry
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.util.ClassUtils
@@ -85,7 +84,10 @@ class GameController {
 
     @Scheduled(fixedRate = 5000)
     fun doScheduledMaintenance() {
-        for (game in gameService.gamesByGameId.values) {
+
+        var gameIterator = gameService.gamesByGameId.values.iterator()
+        while (gameIterator.hasNext()) {
+            val game = gameIterator.next()
             if (game.status === GameStatus.ABANDONED) {
                 println("Deleting abandoned game \'${game.id}\'")
                 gameService.deleteGame(game.id)
@@ -93,6 +95,7 @@ class GameController {
                 if (game.userList.size == 0) game.status = GameStatus.ABANDONED
             }
         }
+
     }
 
     @ExceptionHandler(Throwable::class)

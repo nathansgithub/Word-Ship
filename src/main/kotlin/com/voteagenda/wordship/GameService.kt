@@ -27,11 +27,14 @@ class GameService {
     fun restartGame(id: String) {
         val now = ZonedDateTime.now(ZoneId.of("US/Eastern"))
         val userList = mutableListOf<User>()
-        for (user in gamesByGameId[id]?.userList ?: mutableListOf()) {
+        val userIterator = (gamesByGameId[id]?.userList ?: mutableListOf()).iterator()
+        while (userIterator.hasNext()) {
+            val user = userIterator.next()
             val secondsSinceLastSeen = ChronoUnit.SECONDS.between(user.lastSeen, now)
             if (secondsSinceLastSeen < 60) userList.add(user)
             println("${user.userName} was last seen: ${user.lastSeen}: $secondsSinceLastSeen seconds ago")
         }
+
         gamesByGameId[id] = createGame(id)
         gamesByGameId[id]?.userList?.addAll(userList)
     }
