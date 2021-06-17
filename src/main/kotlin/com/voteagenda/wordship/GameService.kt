@@ -82,6 +82,8 @@ class GameService {
         val nextUserIndex = (game.userList.indexOf(guess.user) + 1) % game.userList.size
         game.currentTurnUser = game.userList.elementAt(nextUserIndex)
 
+        println("${game.userList.size} users... Next one is #$nextUserIndex")
+
         return guess
     }
 

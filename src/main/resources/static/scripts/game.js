@@ -19,7 +19,7 @@ class Terminal {
     }
     state = 'terminal'
     userInput = null
-    colors = new Map().set('green', 'var(--green)').set('red', 'var(--red)')
+    colors = new Map().set('green', 'var(--green)').set('red', 'var(--red)').set('purple', '#99f')
 
     constructor() {
 
@@ -258,7 +258,7 @@ class Game {
         this.resetPanorama()
         this.latestUpdate = {status: 'in progress'}
         this.elements.wordProgress.classList.remove('bad-job')
-        this.terminal.print(`You are playing a game in room \"${this.id}\"`, '#99f')
+        this.terminal.print(`You are playing a game in room \"${this.id}\"`, this.terminal.colors.get('purple'))
         this.terminal.elements.terminalInput.focus()
     }
     fireCannon = () => {
@@ -330,9 +330,9 @@ class Game {
         const messageBody = JSON.parse(response.body)
         console.info('receiving:', messageBody)
 
-        if (messageBody.currentUser && (!cmd.currentUser || !cmd.currentUser.colorHSL)) {
-            messageBody.currentUser.userName = cmd.currentUser.userName
-            cmd.currentUser = new User(messageBody.currentUser)
+        if (messageBody.currentUser && (!this.terminal.currentUser || !this.terminal.currentUser.colorHSL)) {
+            messageBody.currentUser.userName = this.terminal.currentUser.userName
+            this.terminal.currentUser = new User(messageBody.currentUser)
         }
 
         if (messageBody.userList) {
@@ -376,6 +376,10 @@ class Game {
         this.elements.guessedLetters.innerText = latestUpdate['lettersGuessed'].join(
             ',')
         this.elements.wordProgress.innerText = latestUpdate.wordProgress
+
+        if (latestUpdate['currentTurnUser'] && latestUpdate['currentTurnUser']['userName']) {
+            this.terminal.print('\'s turn.', this.terminal.colors.get('purple'), latestUpdate['currentTurnUser'])
+        }
 
         if (latestUpdate['gameStatus'] !== 'in progress') {
             this.terminal.updateState('terminal')

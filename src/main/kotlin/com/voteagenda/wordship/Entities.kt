@@ -26,7 +26,14 @@ data class Game(val id: String, val word: String) {
     fun getLatestUpdate(): LatestUpdate {
 
         val statusString = status.toString().replace("_", " ").lowercase(Locale.getDefault())
-        return LatestUpdate(statusString, badGuessCount, wordProgress, lettersAvailable, lettersGuessed)
+        return LatestUpdate(
+            statusString,
+            badGuessCount,
+            wordProgress,
+            currentTurnUser,
+            lettersAvailable,
+            lettersGuessed
+        )
     }
 
     fun updateUser(user: User): User {
@@ -57,6 +64,7 @@ data class LatestUpdate(
     val gameStatus: String,
     val badGuessCount: Int,
     val wordProgress: String,
+    val currentTurnUser: User?,
     val lettersAvailable: Set<String>,
     val lettersGuessed: Set<String>
 )
