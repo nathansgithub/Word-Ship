@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit
 @Service
 class GameService {
 
-    val gamesByGameId = mutableMapOf<String, Game>()
+    val gameRepository = mutableMapOf<String, Game>()
     val gamesByUserId = mutableMapOf<String, Game>()
     private val MAX_BAD_GUESSES = 6
 
@@ -16,18 +16,22 @@ class GameService {
         val word = pickWord()
         println(word)
         val game = Game(id, word)
-        gamesByGameId[id] = game
+        gameRepository[id] = game
         return game
     }
 
-    fun getGame(id: String): Game {
-        return gamesByGameId[id] ?: createGame(id)
+    fun getGame(id: String): Game? {
+        return gameRepository[id]
+    }
+
+    fun deleteGame(id: String) {
+        gameRepository.remove(id)
     }
 
     fun restartGame(id: String) {
         val now = ZonedDateTime.now(ZoneId.of("US/Eastern"))
         val userList = mutableListOf<User>()
-        val userIterator = (gamesByGameId[id]?.userList ?: mutableListOf()).iterator()
+        val userIterator = (gameRepository[id]?.userList ?: mutableListOf()).iterator()
         while (userIterator.hasNext()) {
             val user = userIterator.next()
             val secondsSinceLastSeen = ChronoUnit.SECONDS.between(user.lastSeen, now)
@@ -35,12 +39,8 @@ class GameService {
             println("${user.userName} was last seen: ${user.lastSeen}: $secondsSinceLastSeen seconds ago")
         }
 
-        gamesByGameId[id] = createGame(id)
-        gamesByGameId[id]?.userList?.addAll(userList)
-    }
-
-    fun deleteGame(id: String) {
-        gamesByGameId.remove(id)
+        gameRepository[id] = createGame(id)
+        gameRepository[id]?.userList?.addAll(userList)
     }
 
     fun addGuess(game: Game, guess: Guess): Guess? {
