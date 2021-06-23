@@ -35,7 +35,7 @@ class GameController {
         request: Guess
     ): Response {
         request.user.sessionId = sessionId
-        val game = gameService.getGame(id)?: gameService.createGame(id)
+        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
 
         request.user = game.updateUser(request.user)
 
@@ -61,7 +61,7 @@ class GameController {
     }
 
     fun broadcastGameUpdate(id: String) {
-        val game = gameService.getGame(id)?: gameService.createGame(id)
+        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
         val response = Response(
             userList = game.userList, latestUpdate = game.getLatestUpdate()
         )
@@ -70,7 +70,7 @@ class GameController {
 
     @SubscribeMapping("/game/{id}")
     fun addUser(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String) {
-        val game = gameService.getGame(id)?: gameService.createGame(id)
+        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
         gameService.gamesByUserId[sessionId] = game
         game.updateUser(User(sessionId = sessionId))
         broadcastGameUpdate(game.id)
@@ -78,7 +78,7 @@ class GameController {
 
     @EventListener
     fun removeUser(event: SessionDisconnectEvent) {
-        val game = gameService.disconnectUser(event.sessionId)
+        val game = gameService.deleteUser(event.sessionId)
         if (game != null) broadcastGameUpdate(game.id)
     }
 

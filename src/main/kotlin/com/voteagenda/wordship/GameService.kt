@@ -1,5 +1,6 @@
 package com.voteagenda.wordship
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -12,11 +13,8 @@ class GameService {
     val gamesByUserId = mutableMapOf<String, Game>()
     private val MAX_BAD_GUESSES = 6
 
-    fun createGame(id: String): Game {
-        val word = pickWord()
-        println(word)
-        val game = Game(id, word)
-        gameRepository[id] = game
+    fun createGame(game: Game): Game {
+        gameRepository[game.id] = game
         return game
     }
 
@@ -39,7 +37,7 @@ class GameService {
             println("${user.userName} was last seen: ${user.lastSeen}: $secondsSinceLastSeen seconds ago")
         }
 
-        gameRepository[id] = createGame(id)
+        gameRepository[id] = createGame(Game(id))
         gameRepository[id]?.userList?.addAll(userList)
     }
 
@@ -90,15 +88,20 @@ class GameService {
         return guess
     }
 
-    fun disconnectUser(sessionId: String): Game? {
+    fun deleteUser(sessionId: String): Game? {
         val game = gamesByUserId.remove(sessionId) ?: return null
         game.userList.removeIf { user -> user.sessionId.equals(sessionId) }
         return game
     }
 
-    fun pickWord(): String {
-        val content =
-            this::class.java.getResource("/word-lists/dolch-nouns.txt")?.readText()?.split(System.lineSeparator())
-        return content?.random() ?: "error"
-    }
+}
+
+@Service
+class UserService {
+
+    fun createUser() {}
+    fun getUser() {}
+    fun updateUser() {}
+    fun deleteUser() {}
+
 }

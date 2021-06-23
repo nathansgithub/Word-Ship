@@ -1,12 +1,16 @@
 package com.voteagenda.wordship
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.springframework.stereotype.Component
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
-data class Game(val id: String, val word: String) {
+data class Game(val id: String) {
 
+    val word =
+        this::class.java.getResource("/word-lists/dolch-nouns.txt")?.readText()?.split(System.lineSeparator())?.random()
+            ?: "error"
     val userList = mutableSetOf<User>()
     var status = GameStatus.IN_PROGRESS
     var badGuessCount = 0

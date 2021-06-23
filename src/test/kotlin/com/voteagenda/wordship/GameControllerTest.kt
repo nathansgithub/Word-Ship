@@ -11,12 +11,12 @@ import org.springframework.boot.test.context.SpringBootTest
 internal class GameControllerTest {
 
     @Autowired
-    lateinit var controller: GameController
+    lateinit var gameController: GameController
 
     @Test
     @DisplayName("Controller loads")
     fun controllerLoads() {
-        assertNotEquals(null, controller)
+        assertNotEquals(null, gameController)
     }
 
     @Test
@@ -25,9 +25,9 @@ internal class GameControllerTest {
         val gameId = "a"
         val sessionId = "1234-asdf-567890"
 
-        val game = controller.gameService.getGame(gameId)
+        val game = gameController.gameService.createGame(Game(gameId))
 
-        controller.addUser(gameId, sessionId)
+        gameController.addUser(gameId, sessionId)
 
         assertEquals(1, game.userList.size)
         assertEquals(sessionId, game.userList.first().sessionId)
