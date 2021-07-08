@@ -27,8 +27,8 @@ class GameController {
     @Autowired
     private lateinit var messagingTemplate: SimpMessagingTemplate
 
-    @MessageMapping("/game/{id}")
-    @SendTo("/topic/game/{id}")
+    @MessageMapping("/game/{gameId}")
+    @SendTo("/topic/game/{gameId}")
     fun processGuess(
         @DestinationVariable gameId: String,
         @Header("simpSessionId") sessionId: String,
@@ -61,17 +61,17 @@ class GameController {
         )
     }
 
-    fun broadcastGameUpdate(id: String) {
-        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
+    fun broadcastGameUpdate(gameId: String) {
+        val game = gameService.getGame(gameId)?: gameService.createGame(Game(gameId))
         val response = Response(
             userList = game.userList, latestUpdate = game.getLatestUpdate()
         )
-        this.messagingTemplate.convertAndSend("/topic/game/${id}", response)
+        this.messagingTemplate.convertAndSend("/topic/game/${gameId}", response)
     }
 
-    @SubscribeMapping("/game/{id}")
-    fun addUser(@DestinationVariable id: String, @Header("simpSessionId") sessionId: String) {
-        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
+    @SubscribeMapping("/game/{gameId}")
+    fun addUser(@DestinationVariable gameId: String, @Header("simpSessionId") sessionId: String) {
+        val game = gameService.getGame(gameId)?: gameService.createGame(Game(gameId))
         gameService.gamesByUserId[sessionId] = game
         game.updateUser(User(sessionId = sessionId))
         broadcastGameUpdate(game.id)
@@ -86,7 +86,7 @@ class GameController {
     @Scheduled(fixedRate = 5000)
     fun doScheduledMaintenance() {
 
-        var gameIterator = gameService.gameRepository.values.iterator()
+        var gameIterator = gameService.getGames().iterator()
         while (gameIterator.hasNext()) {
             val game = gameIterator.next()
             if (game.status === GameStatus.ABANDONED) {

@@ -22,6 +22,10 @@ class GameService {
         return gameRepository[id]
     }
 
+    fun getGames(): MutableCollection<Game> {
+        return gameRepository.values
+    }
+
     fun deleteGame(id: String) {
         gameRepository.remove(id)
     }
@@ -43,7 +47,7 @@ class GameService {
 
     fun addGuess(gameId: String, guess: Guess): Guess? {
 
-        val game = gameRepository[gameId] ?: createGame(Game(gameId))
+        val game = getGame(gameId) ?: createGame(Game(gameId))
 
         if (guess.letter === null) return null
         if (game.currentTurnUser?.sessionId !== guess.user.sessionId) return null
