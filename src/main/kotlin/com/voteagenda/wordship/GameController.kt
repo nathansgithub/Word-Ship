@@ -30,24 +30,25 @@ class GameController {
     @MessageMapping("/game/{id}")
     @SendTo("/topic/game/{id}")
     fun processGuess(
-        @DestinationVariable id: String,
+        @DestinationVariable gameId: String,
         @Header("simpSessionId") sessionId: String,
         request: Guess
     ): Response {
         request.user.sessionId = sessionId
-        val game = gameService.getGame(id)?: gameService.createGame(Game(id))
+
+        val game = gameService.getGame(gameId) ?: gameService.createGame(Game(gameId))
 
         request.user = game.updateUser(request.user)
 
         var lastGuess: Guess? = null
         if (request.letter != null) {
-            lastGuess = gameService.addGuess(game, request)
+            lastGuess = gameService.addGuess(gameId, request)
 
             if (lastGuess?.isGameEndingGuess == true) {
 
                 Executors.newSingleThreadScheduledExecutor().schedule({
-                    gameService.restartGame(id)
-                    this.broadcastGameUpdate(id)
+                    gameService.restartGame(gameId)
+                    this.broadcastGameUpdate(gameId)
                 }, 20, TimeUnit.SECONDS)
             }
         }

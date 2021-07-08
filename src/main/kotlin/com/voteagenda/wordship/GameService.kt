@@ -41,7 +41,9 @@ class GameService {
         gameRepository[id]?.userList?.addAll(userList)
     }
 
-    fun addGuess(game: Game, guess: Guess): Guess? {
+    fun addGuess(gameId: String, guess: Guess): Guess? {
+
+        val game = gameRepository[gameId] ?: createGame(Game(gameId))
 
         if (guess.letter === null) return null
         if (game.currentTurnUser?.sessionId !== guess.user.sessionId) return null
