@@ -35,24 +35,6 @@ data class Game(val id: String) {
         return alphabet
     }
 
-    fun updateUser(user: User): User {
-        var existingUser = userList.find { userListUser -> userListUser.sessionId === user.sessionId }
-        val userName = user.userName ?: "Anon-${user.sessionId?.substring(0, 6)}"
-
-        if (existingUser == null) {
-            existingUser = User(userName = userName, sessionId = user.sessionId)
-            userList.add(existingUser)
-        } else {
-            existingUser.userName = userName
-        }
-
-        if (currentTurnUser === null) currentTurnUser = user
-
-        if (status === GameStatus.ABANDONED) status = GameStatus.IN_PROGRESS
-
-        return existingUser
-    }
-
 }
 
 enum class GameStatus {
@@ -84,14 +66,9 @@ class Guess(var user: User, letter: String?, var isGameEndingGuess: Boolean = fa
 data class User(
     var userName: String? = null,
     var sessionId: String? = null,
+    val colorHSL: List<Int>? = null,
     @JsonIgnore var lastSeen: ZonedDateTime? = ZonedDateTime.now(ZoneId.of("US/Eastern"))
-) {
-    val colorHSL = if (sessionId == null) null else listOf(
-        sessionId!!.substring(0, 2).toInt(16) * 359 / 255,
-        sessionId!!.substring(2, 4).toInt(16) * 70 / 255 + 30,
-        sessionId!!.substring(4, 6).toInt(16) * 40 / 255 + 60
-    )
-}
+)
 
 data class Response(
     val userList: Set<User>,

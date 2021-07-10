@@ -1,6 +1,5 @@
 package com.voteagenda.wordship
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -11,7 +10,6 @@ import java.util.*
 class GameService {
 
     val gameRepository = mutableMapOf<String, Game>()
-    val gamesByUserId = mutableMapOf<String, Game>()
     private val MAX_BAD_GUESSES = 6
 
     fun createGame(game: Game): Game {
@@ -104,20 +102,65 @@ class GameService {
         return guess
     }
 
-    fun deleteUser(sessionId: String): Game? {
-        val game = gamesByUserId.remove(sessionId) ?: return null
-        game.userList.removeIf { user -> user.sessionId.equals(sessionId) }
-        return game
-    }
-
 }
 
 @Service
 class UserService {
 
-    fun createUser() {}
-    fun getUser() {}
-    fun updateUser() {}
-    fun deleteUser() {}
+    val gamesByUserId = mutableMapOf<String, Game>()
+
+    fun createUser(user: User, game: Game): User {
+        val sessionId = user.sessionId ?: throw IllegalArgumentException("User session id is required.")
+        val userName = user.userName
+
+        val colorHSL = listOf(
+            sessionId.substring(0, 2).toInt(16) * 359 / 255,
+            sessionId.substring(2, 4).toInt(16) * 70 / 255 + 30,
+            sessionId.substring(4, 6).toInt(16) * 40 / 255 + 60
+        )
+
+        val newUser = User(userName = userName, sessionId = sessionId, colorHSL = colorHSL)
+
+        game.userList.add(newUser)
+        gamesByUserId[sessionId] = game
+        return newUser
+    }
+
+    fun getUser(sessionId: String): User {
+        val game = getGameByUserId(sessionId)
+        return game.userList.find { gameUser -> gameUser.sessionId.equals(sessionId) }
+            ?: throw IllegalArgumentException("User not found.")
+    }
+
+    fun updateUser(user: User, game: Game? = null): User {
+
+        val sessionId = user.sessionId ?: throw IllegalArgumentException("User not found.")
+        val userName = user.userName ?: "Anon-${user.sessionId?.substring(0, 6)}"
+
+        val existingUser: User = try {
+            getUser(sessionId)
+        } catch (nfe: IllegalArgumentException) {
+            if (game === null) throw IllegalArgumentException("'Game' parameter is required.")
+            createUser(user, game)
+        }
+
+        existingUser.userName = userName
+
+        val gameToUpdate = getGameByUserId(sessionId)
+        if (gameToUpdate.currentTurnUser === null) gameToUpdate.currentTurnUser = user
+
+        if (gameToUpdate.status === GameStatus.ABANDONED) gameToUpdate.status = GameStatus.IN_PROGRESS
+
+        return existingUser
+    }
+
+    fun deleteUser(sessionId: String) {
+        val game = gamesByUserId.remove(sessionId) ?: return
+        game.userList.removeIf { user -> user.sessionId.equals(sessionId) }
+    }
+
+    fun getGameByUserId(sessionId: String): Game {
+        return gamesByUserId[sessionId] ?: throw IllegalArgumentException("User not found.")
+    }
 
 }

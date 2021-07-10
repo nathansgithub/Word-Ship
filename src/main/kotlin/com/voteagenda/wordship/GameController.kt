@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest
 class GameController {
 
     val gameService = GameService()
+    val userService = UserService()
 
     @Autowired
     private lateinit var messagingTemplate: SimpMessagingTemplate
@@ -38,7 +39,7 @@ class GameController {
 
         val game = gameService.getGame(gameId) ?: gameService.createGame(Game(gameId))
 
-        request.user = game.updateUser(request.user)
+        request.user = userService.updateUser(request.user, game)
 
         var lastGuess: Guess? = null
         if (request.letter != null) {
@@ -62,7 +63,7 @@ class GameController {
     }
 
     fun broadcastGameUpdate(gameId: String) {
-        val game = gameService.getGame(gameId)?: gameService.createGame(Game(gameId))
+        val game = gameService.getGame(gameId) ?: gameService.createGame(Game(gameId))
         val response = Response(
             userList = game.userList, latestUpdate = game.latestUpdate
         )
@@ -71,22 +72,24 @@ class GameController {
 
     @SubscribeMapping("/game/{gameId}")
     fun addUser(@DestinationVariable gameId: String, @Header("simpSessionId") sessionId: String) {
-        val game = gameService.getGame(gameId)?: gameService.createGame(Game(gameId))
-        gameService.gamesByUserId[sessionId] = game
-        game.updateUser(User(sessionId = sessionId))
+        val game = gameService.getGame(gameId) ?: gameService.createGame(Game(gameId))
+        userService.createUser(User(sessionId = sessionId), game)
         broadcastGameUpdate(game.id)
     }
 
     @EventListener
     fun removeUser(event: SessionDisconnectEvent) {
-        val game = gameService.deleteUser(event.sessionId)
-        if (game != null) broadcastGameUpdate(game.id)
+        try {
+            val game = userService.getGameByUserId(event.sessionId)
+            userService.deleteUser(event.sessionId)
+            broadcastGameUpdate(game.id)
+        } catch (nfe: IllegalArgumentException) {}
     }
 
     @Scheduled(fixedRate = 5000)
     fun doScheduledMaintenance() {
 
-        var gameIterator = gameService.getGames().iterator()
+        val gameIterator = gameService.getGames().iterator()
         while (gameIterator.hasNext()) {
             val game = gameIterator.next()
             if (game.status === GameStatus.ABANDONED) {
