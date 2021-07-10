@@ -18,6 +18,14 @@ data class Game(val id: String) {
     var lettersAvailable: MutableSet<String> = listOfLetters()
     var wordProgress = "_".repeat(word.length)
     var currentTurnUser: User? = null
+    var latestUpdate = LatestUpdate(
+        this.status.toString().replace("_", " ").lowercase(Locale.getDefault()),
+        badGuessCount,
+        wordProgress,
+        currentTurnUser,
+        lettersAvailable,
+        lettersGuessed
+    )
 
     private fun listOfLetters(): MutableSet<String> {
         val alphabet = mutableSetOf<String>()
@@ -25,19 +33,6 @@ data class Game(val id: String) {
             alphabet.add(letter.toString())
         }
         return alphabet
-    }
-
-    fun getLatestUpdate(): LatestUpdate {
-
-        val statusString = status.toString().replace("_", " ").lowercase(Locale.getDefault())
-        return LatestUpdate(
-            statusString,
-            badGuessCount,
-            wordProgress,
-            currentTurnUser,
-            lettersAvailable,
-            lettersGuessed
-        )
     }
 
     fun updateUser(user: User): User {

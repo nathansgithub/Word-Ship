@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 @Service
 class GameService {
@@ -90,6 +91,15 @@ class GameService {
         game.currentTurnUser = game.userList.elementAt(nextUserIndex)
 
         println("${game.userList.size} users... Next one is #$nextUserIndex")
+
+        game.latestUpdate = LatestUpdate(
+            game.status.toString().replace("_", " ").lowercase(Locale.getDefault()),
+            game.badGuessCount,
+            game.wordProgress,
+            game.currentTurnUser,
+            game.lettersAvailable,
+            game.lettersGuessed
+        )
 
         return guess
     }

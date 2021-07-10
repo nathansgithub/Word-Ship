@@ -57,14 +57,14 @@ class GameController {
             game.userList,
             request.user,
             lastGuess,
-            game.getLatestUpdate()
+            game.latestUpdate
         )
     }
 
     fun broadcastGameUpdate(gameId: String) {
         val game = gameService.getGame(gameId)?: gameService.createGame(Game(gameId))
         val response = Response(
-            userList = game.userList, latestUpdate = game.getLatestUpdate()
+            userList = game.userList, latestUpdate = game.latestUpdate
         )
         this.messagingTemplate.convertAndSend("/topic/game/${gameId}", response)
     }
