@@ -11,6 +11,7 @@ class GameService {
 
     val gameRepository = mutableMapOf<String, Game>()
     private val MAX_BAD_GUESSES = 6
+    private val AUTO_ADVANCE_TURN_IN_MS = 20000L
 
     fun createGame(game: Game): Game {
         gameRepository[game.id] = game
@@ -49,6 +50,7 @@ class GameService {
         val game = getGame(gameId) ?: createGame(Game(gameId))
 
         if (guess.letter === null) return null
+        if (game.currentTurnUser === null) advanceUserTurn(game)
         if (game.currentTurnUser?.sessionId !== guess.user.sessionId) return null
         if (game.status === GameStatus.ABANDONED) game.status = GameStatus.IN_PROGRESS
         if (game.status !== GameStatus.IN_PROGRESS) return null
@@ -85,11 +87,6 @@ class GameService {
             guess.isGameEndingGuess = true
         }
 
-        val nextUserIndex = (game.userList.indexOf(guess.user) + 1) % game.userList.size
-        game.currentTurnUser = game.userList.elementAt(nextUserIndex)
-
-        println("${game.userList.size} users... Next one is #$nextUserIndex")
-
         game.latestUpdate = LatestUpdate(
             game.status.toString().replace("_", " ").lowercase(Locale.getDefault()),
             game.badGuessCount,
@@ -102,6 +99,26 @@ class GameService {
         return guess
     }
 
+    fun advanceUserTurn(game: Game) {
+        val nextUserIndex = if (game.currentTurnUser === null) 0
+        else {
+            val currentUserIndex =
+                game.userList.indexOfFirst { user -> user.sessionId.equals(game.currentTurnUser!!.sessionId) }
+            (currentUserIndex + 1) % game.userList.size
+        }
+        game.currentTurnUser = game.userList.elementAt(nextUserIndex)
+        println("${game.userList.size} users... Current turn is for #$nextUserIndex (${game.currentTurnUser?.userName})")
+
+        game.currentTurnTimer.schedule(object : TimerTask() {
+            val gameId = game.id
+            override fun run() {
+                val gameToAdvance = getGame(gameId)
+                if (gameToAdvance !== null) advanceUserTurn(gameToAdvance)
+            }
+        }, AUTO_ADVANCE_TURN_IN_MS)
+
+
+    }
 }
 
 @Service
@@ -123,6 +140,7 @@ class UserService {
 
         game.userList.add(newUser)
         gamesByUserId[sessionId] = game
+
         return newUser
     }
 
@@ -147,7 +165,6 @@ class UserService {
         existingUser.userName = userName
 
         val gameToUpdate = getGameByUserId(sessionId)
-        if (gameToUpdate.currentTurnUser === null) gameToUpdate.currentTurnUser = user
 
         if (gameToUpdate.status === GameStatus.ABANDONED) gameToUpdate.status = GameStatus.IN_PROGRESS
 

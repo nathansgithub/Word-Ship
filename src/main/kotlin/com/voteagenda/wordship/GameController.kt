@@ -94,6 +94,7 @@ class GameController {
             val game = gameIterator.next()
             if (game.status === GameStatus.ABANDONED) {
                 println("Deleting abandoned game \'${game.id}\'")
+                gameIterator.remove()
                 gameService.deleteGame(game.id)
             } else {
                 if (game.userList.size == 0) game.status = GameStatus.ABANDONED

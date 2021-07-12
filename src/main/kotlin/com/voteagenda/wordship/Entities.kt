@@ -1,7 +1,6 @@
 package com.voteagenda.wordship
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.stereotype.Component
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
@@ -18,6 +17,7 @@ data class Game(val id: String) {
     var lettersAvailable: MutableSet<String> = listOfLetters()
     var wordProgress = "_".repeat(word.length)
     var currentTurnUser: User? = null
+    var currentTurnTimer = Timer()
     var latestUpdate = LatestUpdate(
         this.status.toString().replace("_", " ").lowercase(Locale.getDefault()),
         badGuessCount,
