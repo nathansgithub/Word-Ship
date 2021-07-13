@@ -150,7 +150,6 @@ class Terminal {
     updateState = (state) => {
         if (!['playing', 'terminal', 'prompting'].includes(state)) throw `Cannot update cmd state to ${state}`
         this.state = state
-        console.info('changing state to ' + state)
 
         switch (state) {
             case 'playing':
@@ -170,7 +169,6 @@ class Terminal {
 
         if (this.currentGame) {
             const body = {user: this.currentUser}
-            console.info(`/app/game/${this.currentGame.id}`)
             this.elements.gameRoomInfo.innerText = `Playing as ${this.currentUser.userName} in room \"${this.currentGame.id}\"`
 
             this.connectionHandler.publishMessage(`/app/game/${this.currentGame.id}`, body)
@@ -215,7 +213,7 @@ class ConnectionHandler {
         this.client.deactivate()
     }
     publishMessage = (topic, body) => {
-        console.info('sending:', body)
+        console.info('sending', body)
         this.client.publish({destination: topic, body: JSON.stringify(body)})
     }
 }
@@ -328,7 +326,7 @@ class Game {
         this.terminal.element.classList.remove('not-ready')
 
         const messageBody = JSON.parse(response.body)
-        console.info('receiving:', messageBody)
+        console.info('receiving', messageBody)
 
         if (messageBody.currentUser && (!this.terminal.currentUser || !this.terminal.currentUser.colorHSL)) {
             messageBody.currentUser.userName = this.terminal.currentUser.userName
