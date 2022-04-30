@@ -13,5 +13,10 @@ The project will spin up on localhost:8080 by default.
 ## Run from Docker Compose
 ```docker-compose up```
 
-# Screenshot
-![Game window with pirate ship and text prompt beneath. The incomplete word shows as "_o_"](src/main/resources/static/images/screenshots/screenshot-2021-07-13-play.png)
+# Gameplay Screenshots
+![Game window with pirate ship and text prompt beneath. The incomplete word shows as "_o_".](src/main/resources/static/images/screenshots/screenshot-2021-07-13-play.png)
+
+Game window showing player losing the game. A hail of cannonfire sinks the pirate ship:
+
+https://user-images.githubusercontent.com/14364359/166086409-f007737b-de40-4b0d-95a0-39a44ff7ac9a.mp4
+
