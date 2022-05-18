@@ -94,6 +94,7 @@
         color: var(--black);
         font-size: 1rem;
         text-transform: capitalize;
+        cursor: pointer;
     }
 
     .keyboard-spacer-2 {
