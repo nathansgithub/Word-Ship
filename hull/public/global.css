@@ -35,7 +35,7 @@ body {
 body {
 	color: var(--white);
 	margin: 0;
-	padding: 8px;
+	padding: 4px;
 	box-sizing: border-box;
 	font-family: josefin sans, 'sans-serif';
 	line-height: 1.6;

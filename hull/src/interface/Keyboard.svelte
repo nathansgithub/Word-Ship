@@ -61,35 +61,47 @@
         ><button>i</button><button>o</button><button>p</button>
     </div>
     <div class="keyboard-row">
-        <button>a</button><button>s</button><button>d</button><button>f</button
+        <div class="keyboard-spacer-2" /><button>a</button><button>s</button><button>d</button><button>f</button
         ><button>g</button><button>h</button><button>j</button><button>k</button
-        ><button>l</button>
+        ><button>l</button><div class="keyboard-spacer-2" />
     </div>
     <div class="keyboard-row">
-        <button>z</button><button>x</button><button>c</button><button>v</button
-        ><button>b</button><button>n</button><button>m</button>
+        <div class="keyboard-spacer-3" /><button>z</button><button>x</button><button>c</button><button>v</button
+        ><button>b</button><button>n</button><button>m</button><div class="keyboard-spacer-3" />
     </div>
 </div>
 
 <style>
     #keyboard {
         margin: 0.4rem auto;
-        padding: 0.4rem;
-        width: fit-content;
+        padding: 0.4rem 0.1rem;
+        max-width: 480px;
         border-radius: 0 0 10px 10px;
-        border: 2px solid var(--black);
         background-color: var(--black);
     }
 
+    .keyboard-row {
+        display: flex;
+    }
+
     #keyboard button {
+        flex: 1;
         margin: 1px;
-        width: 3rem;
+        padding: 2px;
         height: 3rem;
         border-radius: 10px;
         background-color: var(--white);
         color: var(--black);
         font-size: 1rem;
         text-transform: capitalize;
+    }
+
+    .keyboard-spacer-2 {
+        flex: 0.6;
+    }
+
+    .keyboard-spacer-3 {
+        flex: 1.8;
     }
 
     #keyboard button:hover,
@@ -100,4 +112,10 @@
     :global(#keyboard button.active) {
         background-color: var(--secondary-color) !important;
     }
+
+    @media (min-width: 640px) {
+		#keyboard {
+			padding: 0.4rem;
+		}
+	}
 </style>
