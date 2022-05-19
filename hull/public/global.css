@@ -1,13 +1,13 @@
 @font-face {
 	font-family: 'Josefin Sans';
-	src: url('fonts/JosefinSans-VariableFont_wght.ttf') format('truetype');
+	src: url(fonts/JosefinSans-VariableFont_wght.ttf) format('truetype');
 	font-display: swap;
 }
 
 :root {
 	--red: #f55;
 	--green: #3c7;
-	--water: hsla(199, 46%, 70%, 0.7);
+	--water-color: hsla(199, 46%, 70%, 0.7);
 	--black: #333;
 	--white: rgb(220, 220, 220);
 	--white-fade: rgba(220, 220, 220, 0.65);
@@ -17,6 +17,7 @@
 	--primary-color-light: rgb(44, 153, 122);
 	--secondary-color: rgb(240, 180, 70);
 	--secondary-color-dark: rgb(168, 126, 23);
+	--secondary-color-fade: rgba(240, 180, 70, 0.3);
 	--secondary-color-light: rgb(270, 210, 100);
 }
 

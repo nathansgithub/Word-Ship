@@ -55,29 +55,34 @@
 </script>
 
 <div id="keyboard" on:click={clickKeyboard}>
-    <div class="keyboard-row">
-        <button type="submit">q</button><button>w</button><button>e</button
-        ><button>r</button><button>t</button><button>y</button><button>u</button
-        ><button>i</button><button>o</button><button>p</button>
-    </div>
-    <div class="keyboard-row">
-        <div class="keyboard-spacer-2" /><button>a</button><button>s</button><button>d</button><button>f</button
-        ><button>g</button><button>h</button><button>j</button><button>k</button
-        ><button>l</button><div class="keyboard-spacer-2" />
-    </div>
-    <div class="keyboard-row">
-        <div class="keyboard-spacer-3" /><button>z</button><button>x</button><button>c</button><button>v</button
-        ><button>b</button><button>n</button><button>m</button><div class="keyboard-spacer-3" />
+    <div id="key-box">
+        <div class="keyboard-row">
+            <button type="submit">q</button><button>w</button><button>e</button
+            ><button>r</button><button>t</button><button>y</button><button>u</button
+            ><button>i</button><button>o</button><button>p</button>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-spacer-2" /><button>a</button><button>s</button><button>d</button><button>f</button
+            ><button>g</button><button>h</button><button>j</button><button>k</button
+            ><button>l</button><div class="keyboard-spacer-2" />
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-spacer-3" /><button>z</button><button>x</button><button>c</button><button>v</button
+            ><button>b</button><button>n</button><button>m</button><div class="keyboard-spacer-3" />
+        </div>
     </div>
 </div>
 
 <style>
     #keyboard {
-        margin: 0.4rem auto;
-        padding: 0.4rem 0.1rem;
-        max-width: 480px;
         border-radius: 0 0 10px 10px;
         background-color: var(--black);
+    }
+
+    #key-box {
+        margin: 0 auto 0.4rem auto;
+        padding: 0.4rem 0.1rem;
+        max-width: 480px;
     }
 
     .keyboard-row {
@@ -115,7 +120,7 @@
     }
 
     @media (min-width: 640px) {
-		#keyboard {
+		#key-box {
 			padding: 0.4rem;
 		}
 	}
