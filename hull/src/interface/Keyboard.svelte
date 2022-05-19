@@ -117,6 +117,8 @@
 
     :global(#keyboard button.active) {
         background-color: var(--secondary-color) !important;
+        outline: var(--black) solid 3px;
+        outline-offset: -2px;
     }
 
     @media (min-width: 640px) {
