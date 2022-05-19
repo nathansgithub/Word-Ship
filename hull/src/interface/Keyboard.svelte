@@ -44,6 +44,9 @@
     function typeLetter(letter) {
         letter = letter.toLowerCase();
         if (currentKeyDown == letter) return;
+        if (document.getElementById("keyboard").classList.contains('disabled')) {
+            return;
+        }
 
         console.log(letter);
         currentKeyDown = letter;
@@ -101,6 +104,11 @@
         font-size: 1rem;
         text-transform: capitalize;
         cursor: pointer;
+    }
+
+    :global(#keyboard.disabled button) {
+        background-color: var(--white-fade) !important;
+        cursor: not-allowed !important;
     }
 
     .keyboard-spacer-2 {
