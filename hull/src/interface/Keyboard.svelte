@@ -38,6 +38,7 @@
         if (event.target.tagName !== "BUTTON") return;
 
         typeLetter(event.target.innerText);
+        currentKeyDown = null;
     }
 
     function typeLetter(letter) {
