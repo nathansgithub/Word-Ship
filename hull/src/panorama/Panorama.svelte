@@ -12,6 +12,7 @@
 
 <style>
     #panorama {
+        flex: 1;
         position: relative;
         min-height: 192px;
         margin: 0;

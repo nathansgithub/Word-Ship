@@ -21,6 +21,8 @@
 
 <style>
 	main {
+		display: flex;
+		flex-direction: column;
 		text-align: center;
 		margin: 0 auto;
 		min-height: 100vh;
@@ -29,7 +31,7 @@
 
 	header {
 		display: flex;
-  		align-items: center;
+		align-items: center;
 		justify-content: left;
 		flex-wrap: wrap;
 		font-weight: 700;
@@ -41,7 +43,18 @@
 		margin: 0.8rem 1rem;
 		text-transform: uppercase;
 		font-size: 3rem;
-		
+	}
+
+	article {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	#game {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
 	}
 
 	#game-room-name {
@@ -56,7 +69,6 @@
 
 	@media (min-height: 560px) {
 		main {
-			margin: 4rem auto;
 		}
 	}
 </style>
