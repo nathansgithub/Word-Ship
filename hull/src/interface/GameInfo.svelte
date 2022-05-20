@@ -62,7 +62,7 @@
 
     @media screen and (min-width: 600px) and (min-height: 600px) {
         #game-info {
-            padding: 1em;
+            padding: 0 1em;
         }
 
         #word-progress {

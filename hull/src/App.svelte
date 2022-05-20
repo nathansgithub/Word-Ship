@@ -45,6 +45,7 @@
 		margin: 0.8rem 1rem;
 		text-transform: uppercase;
 		font-size: 3rem;
+		text-align: center;
 	}
 
 	article {
