@@ -60,7 +60,7 @@
         visibility: hidden;
     }
 
-    @media screen and (min-width: 480px) and (min-height: 480px) {
+    @media screen and (min-width: 600px) and (min-height: 600px) {
         #game-info {
             padding: 1em;
         }

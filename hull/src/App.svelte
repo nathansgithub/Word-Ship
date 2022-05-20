@@ -69,7 +69,7 @@
 		}
 	}
 
-	@media (min-height: 560px) {
+	@media (min-height: 600px) {
 		.layout-vertical-spacer {
 			height: 10vh;
 		}
