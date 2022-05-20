@@ -5,6 +5,7 @@
 </script>
 
 <main>
+	<div class="layout-vertical-spacer" />
 	<header>
 		<h1>Word Ship</h1>
 		<div id="game-room-name">Guess the secret word.</div>
@@ -17,6 +18,7 @@
 		</div>
 		<Keyboard />
 	</article>
+	<div class="layout-vertical-spacer" />
 </main>
 
 <style>
@@ -68,7 +70,8 @@
 	}
 
 	@media (min-height: 560px) {
-		main {
+		.layout-vertical-spacer {
+			height: 10vh;
 		}
 	}
 </style>
